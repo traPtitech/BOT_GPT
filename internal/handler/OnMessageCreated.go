@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	"github.com/pikachu0310/BOT_GPT/internal/bot"
 	"github.com/pikachu0310/BOT_GPT/internal/gpt"
 	"github.com/traPtitech/traq-ws-bot/payload"
@@ -13,7 +12,6 @@ func (h *Handler) MessageReceived() func(p *payload.MessageCreated) {
 		log.Println("=================================================")
 		log.Printf("MessageReceived()")
 		log.Printf("Message created by %s\n", p.Message.User.DisplayName)
-		log.Println("Message:" + p.Message.Text)
 		log.Printf("Payload:"+"%+v", p)
 
 		if p.Message.User.Bot {
@@ -22,9 +20,8 @@ func (h *Handler) MessageReceived() func(p *payload.MessageCreated) {
 
 		plainTextWithoutMention := bot.RemoveFirstBotId(p.Message.PlainText)
 
-		// if first 5 text = debug
-		if len(plainTextWithoutMention) >= 5 && plainTextWithoutMention[:5] == "debug" {
-			fmt.Printf("embed: %#v\n", p.Message.Embedded)
+		if len(plainTextWithoutMention) >= 6 && plainTextWithoutMention[:6] == "/reset" {
+			gpt.ChatReset(p.Message.ChannelID)
 			return
 		}
 
