@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"fmt"
+	"github.com/pikachu0310/BOT_GPT/internal/bot"
 	"github.com/pikachu0310/BOT_GPT/internal/gpt"
 	"github.com/traPtitech/traq-ws-bot/payload"
 	"log"
@@ -18,6 +20,16 @@ func (h *Handler) MessageReceived() func(p *payload.MessageCreated) {
 			return
 		}
 
-		gpt.Chat(p.Message.ChannelID, p.Message.PlainText)
+		plainTextWithoutMention := bot.RemoveFirstBotId(p.Message.PlainText)
+
+		// if first 5 text = debug
+		if len(plainTextWithoutMention) >= 5 && plainTextWithoutMention[:5] == "debug" {
+			fmt.Printf("embed: %#v\n", p.Message.Embedded)
+			return
+		}
+
+		imagesBase64 := bot.GetBase64ImagesFromMessage(p.Message.Text)
+
+		gpt.Chat(p.Message.ChannelID, plainTextWithoutMention, imagesBase64)
 	}
 }

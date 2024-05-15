@@ -8,6 +8,7 @@ import (
 	traqwsbot "github.com/traPtitech/traq-ws-bot"
 	"log"
 	"os"
+	"strings"
 )
 
 var (
@@ -15,7 +16,7 @@ var (
 	Info *traq.MyUserDetail
 )
 
-func init() {
+func InitBot() {
 	token := GetToken()
 
 	bot, err := traqwsbot.NewBot(&traqwsbot.Options{
@@ -29,7 +30,18 @@ func init() {
 	if err != nil || res.StatusCode != 200 {
 		log.Fatalf("error: 自分の情報を取得できませんでした: %v", err)
 	}
+
+	Bot = bot
 	Info = botInfo
+}
+
+func RemoveFirstBotId(input string) string {
+	BotId := Info.Id
+	index := strings.Index(input, BotId)
+	if index == -1 {
+		return input
+	}
+	return input[:index] + input[index+len(BotId):]
 }
 
 func GetToken() (token string) {
@@ -40,8 +52,8 @@ func GetToken() (token string) {
 	return token
 }
 
-func GetBot() (bot *traqwsbot.Bot) {
-	return bot
+func GetBot() *traqwsbot.Bot {
+	return Bot
 }
 
 func BotJoin(ChannelID string) error {

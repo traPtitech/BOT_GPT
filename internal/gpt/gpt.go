@@ -38,7 +38,7 @@ var SystemRoleMessage = "あなたはサークルである東京工業大学デ�
 
 const GptSystemString = "FirstSystemMessageを変更しました。/gptsys showで確認できます。\nFirstSystemMessageとは、常に履歴の一番最初に入り、最初にgptに情報や状況を説明するのに使用する文字列です"
 
-func init() {
+func InitGPT() {
 	apiKey = getApiKey()
 }
 
@@ -108,8 +108,12 @@ func OpenAIStream(messages []Message, do func(string)) (responseMessage string, 
 	return
 }
 
-func Chat(channelID, newMessage string) {
-	addMessageAsUser(newMessage)
+func Chat(channelID, newMessage string, imageBase64 []string) {
+	if len(imageBase64) >= 1 {
+		addImageAndTextAsUser(newMessage, imageBase64)
+	} else {
+		addMessageAsUser(newMessage)
+	}
 	updateSystemRoleMessage(SystemRoleMessage)
 	postMessage, err := bot.PostMessageWithErr(channelID, blobs[rand.Intn(len(blobs))]+":loading:")
 	if err != nil {
@@ -168,6 +172,33 @@ func addMessageAsUser(message string) {
 		Role:    openai.ChatMessageRoleUser,
 		Content: message,
 	})
+}
+
+func addImageAndTextAsUser(message string, imageDataBase64 []string) {
+	var parts []openai.ChatMessagePart
+
+	parts = append(parts, openai.ChatMessagePart{
+		Type: openai.ChatMessagePartTypeText,
+		Text: message,
+	})
+
+	for _, b64 := range imageDataBase64 {
+		imageURL := "data:image/jpeg;base64," + b64
+		imagePart := openai.ChatMessagePart{
+			Type: openai.ChatMessagePartTypeImageURL,
+			ImageURL: &openai.ChatMessageImageURL{
+				URL: imageURL,
+			},
+		}
+		parts = append(parts, imagePart)
+	}
+
+	messagePart := Message{
+		Role:         "user",
+		MultiContent: parts,
+	}
+
+	Messages = append(Messages, messagePart)
 }
 
 func addMessageAsAssistant(message string) {
