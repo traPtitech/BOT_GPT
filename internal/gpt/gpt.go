@@ -126,10 +126,9 @@ func OpenAIStream(messages []Message, do func(string)) (responseMessage string, 
 }
 
 func Chat(channelID, newMessageText string, imageBase64 []string) {
-	messages, exist := ChannelMessages[channelID]
+	_, exist := ChannelMessages[channelID]
 	if !exist {
 		ChannelMessages[channelID] = make([]Message, 0)
-		messages = ChannelMessages[channelID]
 	}
 	addSystemMessageIfNotExist(channelID, DefaultSystemRoleMessage)
 
@@ -145,7 +144,7 @@ func Chat(channelID, newMessageText string, imageBase64 []string) {
 		bot.EditMessage(postMessage.Id, getRandomAmazed()+"Error: "+fmt.Sprint(err))
 	}
 
-	responseMessage, finishReason, err := OpenAIStream(messages, func(responseMessage string) {
+	responseMessage, finishReason, err := OpenAIStream(ChannelMessages[channelID], func(responseMessage string) {
 		bot.EditMessage(postMessage.Id, responseMessage)
 	})
 	if err != nil {
