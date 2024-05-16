@@ -37,6 +37,7 @@ func main() {
 	// setup bot
 	traQBot := bot.GetBot()
 	traQBot.OnMessageCreated(h.MessageReceived())
+	traQBot.OnDirectMessageCreated(h.DirectMessageReceived())
 
 	if err := traQBot.Start(); err != nil {
 		panic(err)
