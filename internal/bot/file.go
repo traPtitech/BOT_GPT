@@ -40,12 +40,14 @@ func GetFileData(fileID string) *os.File {
 func ConvertFileToBase64IfFileIsImage(fileID string) *string {
 	if !isImage(fileID) {
 		log.Println("Not an image")
+
 		return nil
 	}
 
 	fileData := GetFileData(fileID)
 	if fileData == nil {
 		log.Println("Failed to get file data")
+
 		return nil
 	}
 	defer fileData.Close()
@@ -53,6 +55,7 @@ func ConvertFileToBase64IfFileIsImage(fileID string) *string {
 	base64Data, err := fileToBase64(fileData)
 	if err != nil {
 		log.Printf("Error reading file: %v\n", err)
+
 		return nil
 	}
 
@@ -64,6 +67,7 @@ func isImage(fileID string) bool {
 	fileInfo := GetFileMetadata(fileID)
 	if fileInfo == nil {
 		log.Println("Failed to get file metadata")
+
 		return false
 	}
 
@@ -78,6 +82,7 @@ func fileToBase64(file *os.File) (*string, error) {
 	}
 
 	base64Data := base64.StdEncoding.EncodeToString(data)
+
 	return &base64Data, nil
 }
 

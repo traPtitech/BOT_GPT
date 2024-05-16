@@ -35,13 +35,14 @@ func InitBot() {
 	Info = botInfo
 }
 
-func RemoveFirstBotId(input string) string {
-	BotId := Info.Id
-	index := strings.Index(input, BotId)
+func RemoveFirstBotID(input string) string {
+	BotID := Info.Id
+	index := strings.Index(input, BotID)
 	if index == -1 {
 		return input
 	}
-	return input[:index] + input[index+len(BotId):]
+
+	return input[:index] + input[index+len(BotID):]
 }
 
 func GetToken() (token string) {
@@ -49,6 +50,7 @@ func GetToken() (token string) {
 	if !exist {
 		log.Fatal("error: BOT_TOKENが設定されていません")
 	}
+
 	return token
 }
 
@@ -56,15 +58,17 @@ func GetBot() *traqwsbot.Bot {
 	return Bot
 }
 
-func BotJoin(ChannelID string) error {
+func Join(ChannelID string) error {
 	bot := GetBot()
 	_, err := bot.API().BotApi.LetBotJoinChannel(context.Background(), Info.Id).PostBotActionJoinRequest(traq.PostBotActionJoinRequest{ChannelId: ChannelID}).Execute()
+
 	return err
 }
 
-func BotLeave(ChannelID string) error {
+func Leave(ChannelID string) error {
 	bot := GetBot()
 	_, err := bot.API().BotApi.LetBotLeaveChannel(context.Background(), Info.Id).PostBotActionLeaveRequest(traq.PostBotActionLeaveRequest{ChannelId: ChannelID}).Execute()
+
 	return err
 }
 
@@ -88,23 +92,25 @@ func GetBots() []traq.Bot {
 	if err != nil {
 		fmt.Println(err)
 	}
+
 	return Bots
 }
 
-func BotToUser(bot traq.Bot) traq.User {
+func botToUser(bot traq.Bot) traq.User {
 	user := traq.User{
 		Id:          bot.Id,
 		Name:        bot.BotUserId,
 		DisplayName: "",
 		IconFileId:  "",
 		Bot:         true,
-		State:       BotStateToUserState(bot.State),
+		State:       botStateToUserState(bot.State),
 		UpdatedAt:   bot.UpdatedAt,
 	}
+
 	return user
 }
 
-func BotStateToUserState(botState traq.BotState) traq.UserAccountState {
+func botStateToUserState(botState traq.BotState) traq.UserAccountState {
 	switch botState {
 	case traq.BOTSTATE_deactivated:
 		return traq.USERACCOUNTSTATE_deactivated

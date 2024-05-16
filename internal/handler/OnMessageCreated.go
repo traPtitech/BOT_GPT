@@ -11,17 +11,17 @@ func (h *Handler) MessageReceived() func(p *payload.MessageCreated) {
 	return func(p *payload.MessageCreated) {
 		log.Println("=================================================")
 		log.Printf("MessageReceived()")
-		log.Printf("Message created by %s\n", p.Message.User.DisplayName)
 		log.Printf("Payload:"+"%+v", p)
 
 		if p.Message.User.Bot {
 			return
 		}
 
-		plainTextWithoutMention := bot.RemoveFirstBotId(p.Message.PlainText)
+		plainTextWithoutMention := bot.RemoveFirstBotID(p.Message.PlainText)
 
 		if len(plainTextWithoutMention) >= 6 && plainTextWithoutMention[:6] == "/reset" {
 			gpt.ChatReset(p.Message.ChannelID)
+
 			return
 		}
 

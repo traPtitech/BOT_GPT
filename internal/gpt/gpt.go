@@ -9,7 +9,6 @@ import (
 	"log"
 	"math/rand"
 	"os"
-	"regexp"
 	"time"
 
 	"github.com/sashabaranov/go-openai"
@@ -30,13 +29,12 @@ var (
 	warnings                 = [...]string{":warning:", ":ikura-hamu_shooting_warning:"}
 	apiKey                   string
 	DefaultSystemRoleMessage = "あなたはサークルである東京工業大学デジタル創作同好会traPの部内SNS「traQ」のユーザーを、楽しませる娯楽用途や勉強するための学習用途として、BOTの中に作られたOpenAIの最新モデルGPT4oを用いた対話型AIです。身内しかいないSNSで、ユーザーに緩く接してください。そして、ユーザーの言う事に出来る限り従うようにしてください。"
+	ChannelMessages          = make(map[string][]Message)
 )
 
 type Message = openai.ChatCompletionMessage
 
-var Messages = make([]Message, 0)
-
-const GptSystemString = "FirstSystemMessageを変更しました。/gptsys showで確認できます。\nFirstSystemMessageとは、常に履歴の一番最初に入り、最初にgptに情報や状況を説明するのに使用する文字列です"
+const SystemString = "FirstSystemMessageを変更しました。/gptsys showで確認できます。\nFirstSystemMessageとは、常に履歴の一番最初に入り、最初にgptに情報や状況を説明するのに使用する文字列です"
 
 func InitGPT() {
 	apiKey = getAPIKey()
@@ -47,6 +45,7 @@ func getAPIKey() string {
 	if !exist {
 		log.Fatal("OPENAI_API_KEY is not set")
 	}
+
 	return key
 }
 
@@ -79,7 +78,6 @@ func OpenAIStream(messages []Message, do func(string)) (responseMessage string, 
 	}
 	stream, err := c.CreateChatCompletionStream(ctx, req)
 	if err != nil {
-		do(fmt.Sprintf("ChatCompletionStream error: %v\n", err))
 		return
 	}
 	defer stream.Close()
@@ -92,12 +90,14 @@ func OpenAIStream(messages []Message, do func(string)) (responseMessage string, 
 		if err != nil {
 			do(responseMessage + getRandomWarning() + ":blobglitch: Error: " + fmt.Sprint(err))
 			finishReason = errorHappen
+
 			break
 		}
 		if errors.Is(err, io.EOF) {
-			err = errors.New("stream closed")
+			_ = errors.New("stream closed")
 			fmt.Println("steam closed")
 			finishReason = errorHappen
+
 			break
 		}
 
@@ -105,47 +105,58 @@ func OpenAIStream(messages []Message, do func(string)) (responseMessage string, 
 			time.Sleep(200 * time.Millisecond)
 			do(responseMessage)
 			finishReason = stop
+
 			break
 		} else if response.Choices[0].FinishReason == "length" {
 			do(responseMessage + "\n" + getRandomAmazed() + "トークン(履歴を含む文字数)が上限に達しました。/resetを実行してください。")
 			finishReason = length
+
 			break
 		}
 
 		responseMessage += response.Choices[0].Delta.Content
 
-		if time.Now().Sub(lastDoTime) >= deltaTime {
+		if time.Since(lastDoTime) >= deltaTime {
 			lastDoTime = time.Now()
 			do(getRandomBlobAndAmazed() + responseMessage + ":loading:")
 		}
 	}
-	addMessageAsAssistant(responseMessage)
+
 	return
 }
 
-func Chat(channelID, newMessage string, imageBase64 []string) {
-	if len(imageBase64) >= 1 {
-		addImageAndTextAsUser(newMessage, imageBase64)
-	} else {
-		addMessageAsUser(newMessage)
+func Chat(channelID, newMessageText string, imageBase64 []string) {
+	messages, exist := ChannelMessages[channelID]
+	if !exist {
+		ChannelMessages[channelID] = make([]Message, 0)
+		messages = ChannelMessages[channelID]
 	}
-	updateSystemRoleMessage(DefaultSystemRoleMessage)
+	addSystemMessageIfNotExist(channelID, DefaultSystemRoleMessage)
+
+	if len(imageBase64) >= 1 {
+		addImageAndTextAsUser(channelID, newMessageText, imageBase64)
+	} else {
+		addMessageAsUser(channelID, newMessageText)
+	}
+
 	time.Sleep(50 * time.Millisecond)
 	postMessage, err := bot.PostMessageWithErr(channelID, getRandomBlob()+":loading:")
 	if err != nil {
 		bot.EditMessage(postMessage.Id, getRandomAmazed()+"Error: "+fmt.Sprint(err))
 	}
-	responseMessage, finishReason, err := OpenAIStream(Messages, func(responseMessage string) {
+
+	responseMessage, finishReason, err := OpenAIStream(messages, func(responseMessage string) {
 		bot.EditMessage(postMessage.Id, responseMessage)
 	})
 	if err != nil {
-		fmt.Println(err)
+		bot.EditMessage(postMessage.Id, fmt.Sprintf("before ChatCompletionStream error: %v\n", err))
 	}
+
+	addMessageAsAssistant(channelID, responseMessage)
 
 	if finishReason == length {
 		bot.EditMessage(postMessage.Id, responseMessage+"\n"+getRandomAmazed()+"トークン(履歴を含む文字数)が上限に達しました。/resetを実行してください。")
 	}
-
 	if finishReason == stop {
 		bot.EditMessage(postMessage.Id, responseMessage)
 	}
@@ -153,7 +164,7 @@ func Chat(channelID, newMessage string, imageBase64 []string) {
 
 func ChatChangeSystemMessage(channelID, message string) {
 	DefaultSystemRoleMessage = message
-	bot.PostMessage(channelID, GptSystemString)
+	bot.PostMessage(channelID, SystemString)
 }
 
 func ChatShowSystemMessage(channelID string) {
@@ -162,22 +173,21 @@ func ChatShowSystemMessage(channelID string) {
 
 func ChatReset(channelID string) {
 	msg := bot.PostMessage(channelID, ":blobnom::loading:")
-	Messages = make([]Message, 0)
+	ChannelMessages[channelID] = make([]Message, 0)
 	err := bot.EditMessageWithErr(msg.Id, ":done:")
 	if err != nil {
 		bot.EditMessage(msg.Id, "Error: "+fmt.Sprint(err))
 	}
-	return
 }
 
-func addMessageAsUser(message string) {
-	Messages = append(Messages, Message{
+func addMessageAsUser(channelID, message string) {
+	ChannelMessages[channelID] = append(ChannelMessages[channelID], Message{
 		Role:    openai.ChatMessageRoleUser,
 		Content: message,
 	})
 }
 
-func addImageAndTextAsUser(message string, imageDataBase64 []string) {
+func addImageAndTextAsUser(channelID, message string, imageDataBase64 []string) {
 	var parts []openai.ChatMessagePart
 
 	parts = append(parts, openai.ChatMessagePart{
@@ -201,56 +211,56 @@ func addImageAndTextAsUser(message string, imageDataBase64 []string) {
 		MultiContent: parts,
 	}
 
-	Messages = append(Messages, messagePart)
+	ChannelMessages[channelID] = append(ChannelMessages[channelID], messagePart)
 }
 
-func addMessageAsAssistant(message string) {
-	Messages = append(Messages, Message{
+func addMessageAsAssistant(channelID, message string) {
+	ChannelMessages[channelID] = append(ChannelMessages[channelID], Message{
 		Role:    openai.ChatMessageRoleAssistant,
 		Content: message,
 	})
 }
 
-func addMessageAsSystem(message string) {
-	Messages = append(Messages, Message{
+func addMessageAsSystem(channelID, message string) {
+	ChannelMessages[channelID] = append(ChannelMessages[channelID], Message{
 		Role:    openai.ChatMessageRoleSystem,
 		Content: message,
 	})
 }
 
-func addSystemMessageIfNotExist(message string) {
-	for _, m := range Messages {
+func addSystemMessageIfNotExist(channelID, message string) {
+	for _, m := range ChannelMessages[channelID] {
 		if m.Role == "system" {
 			return
 		}
 	}
-	Messages = append([]Message{{
+	ChannelMessages[channelID] = append([]Message{{
 		Role:    openai.ChatMessageRoleSystem,
 		Content: message,
-	}}, Messages...)
+	}}, ChannelMessages[channelID]...)
 }
 
-func updateSystemRoleMessage(message string) {
-	addSystemMessageIfNotExist(message)
-	Messages[0] = Message{
+func updateSystemRoleMessage(channelID, message string) {
+	addSystemMessageIfNotExist(channelID, message)
+	ChannelMessages[channelID][0] = Message{
 		Role:    "system",
 		Content: message,
 	}
 }
 
-func ChatDebug(channelID string) {
-	returnString := "```\n"
-	for _, m := range Messages {
-		chatText := regexp.MustCompile("```").ReplaceAllString(m.Content, "")
-		if len(chatText) >= 40 {
-			returnString += m.Role + ": " + chatText[:40] + "...\n"
-		} else {
-			returnString += m.Role + ": " + chatText + "\n"
-		}
-	}
-	returnString += "```"
-	_, err := bot.PostMessageWithErr(channelID, returnString)
-	if err != nil {
-		fmt.Println(err)
-	}
-}
+//func ChatDebug(channelID string) {
+//	returnString := "```\n"
+//	for _, m := range Messages {
+//		chatText := regexp.MustCompile("```").ReplaceAllString(m.Content, "")
+//		if len(chatText) >= 40 {
+//			returnString += m.Role + ": " + chatText[:40] + "...\n"
+//		} else {
+//			returnString += m.Role + ": " + chatText + "\n"
+//		}
+//	}
+//	returnString += "```"
+//	_, err := bot.PostMessageWithErr(channelID, returnString)
+//	if err != nil {
+//		fmt.Println(err)
+//	}
+//}

@@ -19,6 +19,7 @@ func (message *TraqMessage) Edit(content string) error {
 		MessageApi.EditMessage(context.Background(), message.Id).PostMessageRequest(traq.PostMessageRequest{
 		Content: content,
 	}).Execute()
+
 	return err
 }
 
@@ -36,6 +37,7 @@ func PostMessage(channelID string, content string) *traq.Message {
 	if err != nil {
 		log.Println(err)
 	}
+
 	return message
 }
 
@@ -53,6 +55,7 @@ func PostMessageWithErr(channelID string, content string) (*traq.Message, error)
 	if err != nil {
 		log.Println(err)
 	}
+
 	return message, err
 }
 
@@ -82,8 +85,10 @@ func EditMessageWithErr(messageID string, content string) error {
 		if err2 != nil {
 			return err2
 		}
+
 		return fmt.Errorf("%w: %s", err, string(res2))
 	}
+
 	return nil
 }
 
@@ -98,17 +103,18 @@ func GetMessage(messageID string) *traq.Message {
 	if err != nil {
 		log.Println(err)
 	}
+
 	return message
 }
 
-func AddMessage(messageId string, content string) {
-	messageContent := GetMessage(messageId).Content
-	EditMessage(messageId, messageContent+content)
+func AddMessage(messageID string, content string) {
+	messageContent := GetMessage(messageID).Content
+	EditMessage(messageID, messageContent+content)
 }
 
-func AddMessageWithNewLine(messageId string, content string) {
-	messageContent := GetMessage(messageId).Content
-	EditMessage(messageId, messageContent+"\n"+content)
+func AddMessageWithNewLine(messageID string, content string) {
+	messageContent := GetMessage(messageID).Content
+	EditMessage(messageID, messageContent+"\n"+content)
 }
 
 func GetMessages(text string) *traq.MessageSearchResult {
@@ -122,6 +128,7 @@ func GetMessages(text string) *traq.MessageSearchResult {
 	if err != nil {
 		log.Println(err)
 	}
+
 	return messages
 }
 
@@ -137,8 +144,10 @@ func GetMessagesFromUser(userID string, limit int, offset int, before time.Time)
 		if err2 != nil {
 			return nil, err2
 		}
+
 		return nil, fmt.Errorf("%w: %s", err, string(res2))
 	}
+
 	return messages, err
 }
 
@@ -154,8 +163,10 @@ func GetMessagesFromPeriod(after time.Time, before time.Time, limit int, offset 
 		if err2 != nil {
 			return nil, err2
 		}
+
 		return nil, fmt.Errorf("%w: %s", err, string(res2))
 	}
+
 	return messages, err
 }
 
@@ -171,8 +182,10 @@ func GetMessagesFromChannelFrom(after time.Time, before time.Time, limit int, of
 		if err2 != nil {
 			return nil, err2
 		}
+
 		return nil, fmt.Errorf("%w: %s", err, string(res2))
 	}
+
 	return messages, err
 }
 
@@ -187,7 +200,9 @@ func DeleteMessage(messageID string) error {
 		if err2 != nil {
 			return err2
 		}
+
 		return fmt.Errorf("%w: %s", err, string(res2))
 	}
+
 	return err
 }
