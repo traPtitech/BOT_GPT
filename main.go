@@ -19,9 +19,6 @@ func main() {
 		fmt.Printf(".env is not exist: %v", err)
 	}
 
-	bot.InitBot()
-	gpt.InitGPT()
-
 	// connect to database
 	db, err := sqlx.Connect("mysql", config.MySQL().FormatDSN())
 	if err != nil {
@@ -40,6 +37,10 @@ func main() {
 
 	// setup handler
 	h := handler.New(repo)
+
+	// initialize bot and gpt
+	bot.InitBot()
+	gpt.InitGPT()
 
 	// setup bot
 	traQBot := bot.GetBot()
