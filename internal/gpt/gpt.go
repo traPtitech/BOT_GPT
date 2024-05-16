@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/pikachu0310/BOT_GPT/internal/bot"
+	"github.com/pikachu0310/BOT_GPT/internal/repository"
 	"io"
 	"log"
 	"math/rand"
@@ -38,6 +39,18 @@ const SystemString = "FirstSystemMessageを変更しました。/gptsys showで�
 
 func InitGPT() {
 	apiKey = getAPIKey()
+
+	channelIDs, err := repository.GetChannelIDs()
+	if err != nil {
+		log.Fatal(err)
+	}
+	for _, channelID := range channelIDs {
+		messages, err := repository.LoadMessages(channelID)
+		if err != nil {
+			log.Fatal(err)
+		}
+		ChannelMessages[channelID] = messages
+	}
 }
 
 func getAPIKey() string {
@@ -177,13 +190,23 @@ func ChatReset(channelID string) {
 	if err != nil {
 		bot.EditMessage(msg.Id, "Error: "+fmt.Sprint(err))
 	}
+
+	if err = repository.DeleteMessages(channelID); err != nil {
+		fmt.Println(err)
+	}
 }
 
 func addMessageAsUser(channelID, message string) {
-	ChannelMessages[channelID] = append(ChannelMessages[channelID], Message{
+	newMessage := Message{
 		Role:    openai.ChatMessageRoleUser,
 		Content: message,
-	})
+	}
+	ChannelMessages[channelID] = append(ChannelMessages[channelID], newMessage)
+
+	index := len(ChannelMessages[channelID]) - 1
+	if err := repository.SaveMessage(channelID, index, newMessage); err != nil {
+		fmt.Println(err)
+	}
 }
 
 func addImageAndTextAsUser(channelID, message string, imageDataBase64 []string) {
@@ -205,26 +228,30 @@ func addImageAndTextAsUser(channelID, message string, imageDataBase64 []string) 
 		parts = append(parts, imagePart)
 	}
 
-	messagePart := Message{
+	newMessage := Message{
 		Role:         "user",
 		MultiContent: parts,
 	}
 
-	ChannelMessages[channelID] = append(ChannelMessages[channelID], messagePart)
+	ChannelMessages[channelID] = append(ChannelMessages[channelID], newMessage)
+
+	index := len(ChannelMessages[channelID]) - 1
+	if err := repository.SaveMessage(channelID, index, newMessage); err != nil {
+		fmt.Println(err)
+	}
 }
 
 func addMessageAsAssistant(channelID, message string) {
-	ChannelMessages[channelID] = append(ChannelMessages[channelID], Message{
+	newMessage := Message{
 		Role:    openai.ChatMessageRoleAssistant,
 		Content: message,
-	})
-}
+	}
+	ChannelMessages[channelID] = append(ChannelMessages[channelID], newMessage)
 
-func addMessageAsSystem(channelID, message string) {
-	ChannelMessages[channelID] = append(ChannelMessages[channelID], Message{
-		Role:    openai.ChatMessageRoleSystem,
-		Content: message,
-	})
+	index := len(ChannelMessages[channelID]) - 1
+	if err := repository.SaveMessage(channelID, index, newMessage); err != nil {
+		fmt.Println(err)
+	}
 }
 
 func addSystemMessageIfNotExist(channelID, message string) {
@@ -237,6 +264,11 @@ func addSystemMessageIfNotExist(channelID, message string) {
 		Role:    openai.ChatMessageRoleSystem,
 		Content: message,
 	}}, ChannelMessages[channelID]...)
+
+	index := 0
+	if err := repository.SaveMessage(channelID, index, ChannelMessages[channelID][0]); err != nil {
+		fmt.Println(err)
+	}
 }
 
 func updateSystemRoleMessage(channelID, message string) {
@@ -244,6 +276,11 @@ func updateSystemRoleMessage(channelID, message string) {
 	ChannelMessages[channelID][0] = Message{
 		Role:    "system",
 		Content: message,
+	}
+
+	index := 0
+	if err := repository.SaveMessage(channelID, index, ChannelMessages[channelID][0]); err != nil {
+		fmt.Println(err)
 	}
 }
 

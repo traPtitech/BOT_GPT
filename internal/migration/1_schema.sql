@@ -1,9 +1,8 @@
 -- +goose Up
-CREATE TABLE users
+CREATE TABLE channel_messages
 (
-    id         INT AUTO_INCREMENT PRIMARY KEY,
-    username   VARCHAR(255) NOT NULL UNIQUE,
-    password   VARCHAR(255) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    channel_id    VARCHAR(255) NOT NULL,
+    message_index INT          NOT NULL,
+    message       BLOB         NOT NULL,
+    PRIMARY KEY (channel_id, message_index)
 );
-

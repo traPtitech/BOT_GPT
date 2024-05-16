@@ -11,3 +11,9 @@ type Repository struct {
 func New(db *sqlx.DB) *Repository {
 	return &Repository{db: db}
 }
+
+var db *sqlx.DB
+
+func InitDB(database *sqlx.DB) {
+	db = database
+}
