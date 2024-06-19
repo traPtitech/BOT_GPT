@@ -34,7 +34,7 @@ func GetFileData(fileID string) *os.File {
 		log.Println(err)
 	}
 
-	return fileData
+	return *fileData
 }
 
 func ConvertFileToBase64IfFileIsImage(fileID string) *string {
