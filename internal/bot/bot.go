@@ -3,9 +3,9 @@ package bot
 import (
 	"context"
 	"fmt"
+	traqwsbot "github.com/pikachu0310/ex-traq-ws-bot"
 	"github.com/traPtitech/go-traq"
 	_ "github.com/traPtitech/go-traq"
-	traqwsbot "github.com/traPtitech/traq-ws-bot"
 	"log"
 	"os"
 	"strings"
