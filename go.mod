@@ -6,7 +6,7 @@ require (
 	github.com/go-sql-driver/mysql v1.8.1
 	github.com/jmoiron/sqlx v1.4.0
 	github.com/joho/godotenv v1.5.1
-	github.com/pikachu0310/ex-traq-ws-bot v0.0.0-20240619182631-251494d8322d
+	github.com/pikachu0310/ex-traq-ws-bot v0.0.0-20240619184850-81f5cba5d053
 	github.com/pressly/goose/v3 v3.21.1
 	github.com/sashabaranov/go-openai v1.26.0
 	github.com/traPtitech/go-traq v0.0.0-20220426061605-adc15dcfc6d0

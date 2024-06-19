@@ -139,6 +139,8 @@ github.com/ncruces/go-strftime v0.1.9 h1:bY0MQC28UADQmHmaF5dgpLmImcShSi2kHU9XLdh
 github.com/ncruces/go-strftime v0.1.9/go.mod h1:Fwc5htZGVVkseilnfgOVb9mKy6w1naJmn9CehxcKcls=
 github.com/pikachu0310/ex-traq-ws-bot v0.0.0-20240619182631-251494d8322d h1:EJ4PGHUnpggH2d+/4xtoV/nkX/QAtjflIcybug/R89U=
 github.com/pikachu0310/ex-traq-ws-bot v0.0.0-20240619182631-251494d8322d/go.mod h1:T5O/Uk1Ukx00bw/zLvWB7RWZyV+Eo4JstnXidyWDyHg=
+github.com/pikachu0310/ex-traq-ws-bot v0.0.0-20240619184850-81f5cba5d053 h1:yZikH6bABrdHdBf/neJ4GomccCqbTpygrM4TCLl4Z+E=
+github.com/pikachu0310/ex-traq-ws-bot v0.0.0-20240619184850-81f5cba5d053/go.mod h1:r/l67PiYUS3vNOUzxhD6dGmtdOghCA7MxP72IRqohCw=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/pressly/goose/v3 v3.21.1 h1:5SSAKKWej8LVVzNLuT6KIvP1eFDuPvxa+B6H0w78buQ=
