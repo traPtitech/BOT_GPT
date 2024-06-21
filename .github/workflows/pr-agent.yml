@@ -23,7 +23,7 @@ jobs:
           GITHUB_ACTION.AUTO_REVIEW: "true"
           GITHUB_ACTION.AUTO_DESCRIBE: "true"
           GITHUB_ACTION.AUTO_IMPROVE: "false"
-          PR_REVIEWER.EXTRA_INSTRUCTIONS: "Please use Japanese in descriptions."
+          PR_REVIEWER.EXTRA_INSTRUCTIONS: "必ず日本語で回答してください"
           PR_DESCRIPTION.PUBLISH_LABELS: "false"
           PR_DESCRIPTION.PUBLISH_DESCRIPTION_AS_COMMENT: "true"
           PR_DESCRIPTION.KEEP_ORIGINAL_USER_TITLE: "true"
