@@ -1,16 +1,17 @@
 name: PR Agent
 on:
   pull_request:
-    types: ready_for_review
+    types:
+      - ready_for_review
+      - opened
   issue_comment:
-    types: [created, edited]
+    types:
+      - created
+      - edited
+
 jobs:
-  condition_check:
-    if: github.event.pull_request.draft == true
-      run: exit 0
-    
   pr_agent_job:
-    if: ${{ github.event.sender.type != 'Bot' }}
+    if: ${{github.event.sender.type != 'Bot' && github.event.pull_request.draft == false}}
     runs-on: ubuntu-latest
     permissions:
       issues: write
@@ -24,12 +25,11 @@ jobs:
         env:
           OPENAI_KEY: ${{ secrets.OPENAI_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_ACTION.AUTO_REVIEW: "true"
-          GITHUB_ACTION.AUTO_DESCRIBE: "true"
-          GITHUB_ACTION.AUTO_IMPROVE: "false"
-          PR_REVIEWER.EXTRA_INSTRUCTIONS: "必ず日本語で回答してください"
-          PR_DESCRIPTION.PUBLISH_LABELS: "false"
-          PR_DESCRIPTION.PUBLISH_DESCRIPTION_AS_COMMENT: "true"
-          PR_DESCRIPTION.KEEP_ORIGINAL_USER_TITLE: "true"
-          PR_DESCRIPTION.ADD_ORIGINAL_USER_DESCRIPTION: "true"
-          PR_DESCRIPTION.EXTRA_INSTRUCTIONS: "Please use Japanese in descriptions. Titles should have prefix of commitlint pattern such as `feat:`, `chore:`, `test:`, `fix:`, `ci:`, `docs:` etc"
+          GITHUB_ACTION.AUTO_REVIEW: 'true'
+          GITHUB_ACTION.AUTO_DESCRIBE: 'true'
+          GITHUB_ACTION.AUTO_IMPROVE: 'false'
+          PR_REVIEWER.EXTRA_INSTRUCTIONS: '必ず日本語で回答してください'
+          PR_DESCRIPTION.PUBLISH_LABELS: 'false'
+          PR_DESCRIPTION.PUBLISH_DESCRIPTION_AS_COMMENT: 'true'
+          PR_DESCRIPTION.ADD_ORIGINAL_USER_DESCRIPTION: 'false'
+          PR_DESCRIPTION.EXTRA_INSTRUCTIONS: 'Please use Japanese in descriptions.'
