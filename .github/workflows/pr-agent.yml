@@ -33,3 +33,5 @@ jobs:
           PR_DESCRIPTION.PUBLISH_LABELS: 'false'
           PR_DESCRIPTION.ADD_ORIGINAL_USER_DESCRIPTION: 'true'
           PR_DESCRIPTION.EXTRA_INSTRUCTIONS: 'Please use Japanese in descriptions.'
+          CONFIG.MODEL: 'gpt-4o'
+          CONFIG.MODEL_TURBO: 'gpt-4o'
