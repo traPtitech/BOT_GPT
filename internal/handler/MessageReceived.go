@@ -7,6 +7,11 @@ import (
 )
 
 func messageReceived(messageText, messagePlainText, channelID string) {
+	if isStaging(channelID){
+		bot.PostMessageWithErr(channelID, "ステージング機能が有効です。")
+		return
+	}
+
 	if containsReset(messageText) {
 		gpt.ChatReset(channelID)
 
@@ -25,4 +30,14 @@ func containsReset(input string) bool {
 	re := regexp.MustCompile(`(^|\s)/reset($|\s)`)
 
 	return re.MatchString(input)
+}
+
+// ステージングチャンネルであることを確認する
+func isStaging(channelID string) bool {
+	staginChannelID, ok := os.LookupEnv("STAGING_CHANNEL_ID")
+	if !ok {
+		return false
+	}
+
+	return channelID == staginChannelID
 }
