@@ -1,14 +1,20 @@
 package handler
 
 import (
+	"fmt"
+	"os"
+	"regexp"
+
 	"github.com/traPtitech/BOT_GPT/internal/bot"
 	"github.com/traPtitech/BOT_GPT/internal/gpt"
-	"regexp"
 )
 
 func messageReceived(messageText, messagePlainText, channelID string) {
-	if isStaging(channelID){
-		bot.PostMessageWithErr(channelID, "ステージング機能が有効です。")
+	if isStaging(channelID) {
+		_, err := bot.PostMessageWithErr(channelID, "ステージング機能が有効です。")
+		if err != nil {
+			fmt.Println(err)
+		}
 		return
 	}
 
