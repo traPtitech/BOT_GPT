@@ -1,8 +1,8 @@
 package handler
 
 import (
-	"github.com/pikachu0310/BOT_GPT/internal/bot"
-	"github.com/pikachu0310/BOT_GPT/internal/gpt"
+	"github.com/traPtitech/BOT_GPT/internal/bot"
+	"github.com/traPtitech/BOT_GPT/internal/gpt"
 	"regexp"
 )
 
