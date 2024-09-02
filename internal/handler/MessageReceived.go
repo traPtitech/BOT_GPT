@@ -15,6 +15,7 @@ func messageReceived(messageText, messagePlainText, channelID string) {
 		if err != nil {
 			fmt.Println(err)
 		}
+
 		return
 	}
 
