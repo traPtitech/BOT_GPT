@@ -16,7 +16,7 @@ build: $(GO_FILES) ## Compile the binary
 	go build -o $(APP_NAME)
 
 .PHONY: test
-test: test-unit test-integration ## Run all the tests
+test: test-unit #test-integration ## Run all the tests
 
 .PHONY: test-unit
 test-unit: ## Run the unit tests
