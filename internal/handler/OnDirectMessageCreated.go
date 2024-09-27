@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"github.com/pikachu0310/BOT_GPT/internal/bot"
+	"github.com/traPtitech/BOT_GPT/internal/bot"
 	"github.com/traPtitech/traq-ws-bot/payload"
 	"log"
 )
