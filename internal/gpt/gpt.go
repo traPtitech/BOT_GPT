@@ -271,18 +271,18 @@ func addSystemMessageIfNotExist(channelID, message string) {
 	}
 }
 
-func updateSystemRoleMessage(channelID, message string) {
-	addSystemMessageIfNotExist(channelID, message)
-	ChannelMessages[channelID][0] = Message{
-		Role:    "system",
-		Content: message,
-	}
-
-	index := 0
-	if err := repository.SaveMessage(channelID, index, ChannelMessages[channelID][0]); err != nil {
-		fmt.Println(err)
-	}
-}
+//func updateSystemRoleMessage(channelID, message string) {
+//	addSystemMessageIfNotExist(channelID, message)
+//	ChannelMessages[channelID][0] = Message{
+//		Role:    "system",
+//		Content: message,
+//	}
+//
+//	index := 0
+//	if err := repository.SaveMessage(channelID, index, ChannelMessages[channelID][0]); err != nil {
+//		fmt.Println(err)
+//	}
+//}
 
 //func ChatDebug(channelID string) {
 //	returnString := "```\n"

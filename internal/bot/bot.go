@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/traPtitech/go-traq"
-	_ "github.com/traPtitech/go-traq"
 	traqwsbot "github.com/traPtitech/traq-ws-bot"
 	"log"
 	"os"
@@ -83,6 +82,7 @@ func IsBotJoined(ChannelID string) (bool, error) {
 			return true, nil
 		}
 	}
+
 	return false, nil
 }
 
@@ -96,26 +96,27 @@ func GetBots() []traq.Bot {
 	return Bots
 }
 
-func botToUser(bot traq.Bot) traq.User {
-	user := traq.User{
-		Id:          bot.Id,
-		Name:        bot.BotUserId,
-		DisplayName: "",
-		IconFileId:  "",
-		Bot:         true,
-		State:       botStateToUserState(bot.State),
-		UpdatedAt:   bot.UpdatedAt,
-	}
-
-	return user
-}
-
-func botStateToUserState(botState traq.BotState) traq.UserAccountState {
-	switch botState {
-	case traq.BOTSTATE_deactivated:
-		return traq.USERACCOUNTSTATE_deactivated
-	case traq.BOTSTATE_active:
-		return traq.USERACCOUNTSTATE_active
-	}
-	return traq.USERACCOUNTSTATE_suspended
-}
+//func botToUser(bot traq.Bot) traq.User {
+//	user := traq.User{
+//		Id:          bot.Id,
+//		Name:        bot.BotUserId,
+//		DisplayName: "",
+//		IconFileId:  "",
+//		Bot:         true,
+//		State:       botStateToUserState(bot.State),
+//		UpdatedAt:   bot.UpdatedAt,
+//	}
+//
+//	return user
+//}
+//
+//func botStateToUserState(botState traq.BotState) traq.UserAccountState {
+//	switch botState {
+//	case traq.BOTSTATE_deactivated:
+//		return traq.USERACCOUNTSTATE_deactivated
+//	case traq.BOTSTATE_active:
+//		return traq.USERACCOUNTSTATE_active
+//	}
+//
+//	return traq.USERACCOUNTSTATE_suspended
+//}
