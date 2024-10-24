@@ -148,11 +148,11 @@ func Chat(channelID, newMessageText string, imageBase64 []string) {
 	}
 	addSystemMessageIfNotExist(channelID, DefaultSystemRoleMessage)
 
-	milvus_url := os.Getenv("MILVUS_API_URL")
-	milvus_key := os.Getenv("MILVUS_API_KEY")
+	milvusURL := os.Getenv("MILVUS_API_URL")
+	milvusKey := os.Getenv("MILVUS_API_KEY")
 	mc, err := client.NewClient(context.Background(), client.Config{
-		Address: milvus_url,
-		APIKey:  milvus_key,
+		Address: milvusURL,
+		APIKey:  milvusKey,
 	})
 	if err != nil {
 		fmt.Println(err)
