@@ -1,9 +1,11 @@
 package handler
 
 import (
+	"regexp"
+
 	"github.com/pikachu0310/BOT_GPT/internal/bot"
 	"github.com/pikachu0310/BOT_GPT/internal/gpt"
-	"regexp"
+	"github.com/pikachu0310/BOT_GPT/internal/rag"
 )
 
 func messageReceived(messageText, messagePlainText, channelID string) {
@@ -14,7 +16,7 @@ func messageReceived(messageText, messagePlainText, channelID string) {
 	}
 
 	imagesBase64 := bot.GetBase64ImagesFromMessage(messageText)
-	gpt.Chat(channelID, messagePlainText, imagesBase64)
+	rag.Chat(channelID, messagePlainText, imagesBase64)
 }
 
 /*
