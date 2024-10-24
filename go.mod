@@ -1,4 +1,4 @@
-module github.com/pikachu0310/BOT_GPT // replace with your own module name
+module github.com/traPtitech/BOT_GPT // replace with your own module name
 
 go 1.22
 

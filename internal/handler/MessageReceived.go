@@ -1,14 +1,25 @@
 package handler
 
 import (
+	"fmt"
+	"os"
 	"regexp"
 
-	"github.com/pikachu0310/BOT_GPT/internal/bot"
-	"github.com/pikachu0310/BOT_GPT/internal/gpt"
-	"github.com/pikachu0310/BOT_GPT/internal/rag"
+	"github.com/traPtitech/BOT_GPT/internal/bot"
+	"github.com/traPtitech/BOT_GPT/internal/gpt"
+	"github.com/traPtitech/BOT_GPT/internal/rag"
 )
 
 func messageReceived(messageText, messagePlainText, channelID string) {
+	if isStaging(channelID) {
+		_, err := bot.PostMessageWithErr(channelID, "ステージング機能が有効です。")
+		if err != nil {
+			fmt.Println(err)
+		}
+
+		return
+	}
+
 	if containsReset(messageText) {
 		gpt.ChatReset(channelID)
 
@@ -27,4 +38,14 @@ func containsReset(input string) bool {
 	re := regexp.MustCompile(`(^|\s)/reset($|\s)`)
 
 	return re.MatchString(input)
+}
+
+// ステージングチャンネルであることを確認する
+func isStaging(channelID string) bool {
+	staginChannelID, ok := os.LookupEnv("STAGING_CHANNEL_ID")
+	if !ok {
+		return false
+	}
+
+	return channelID == staginChannelID
 }

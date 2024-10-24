@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	"github.com/joho/godotenv"
-	"github.com/pikachu0310/BOT_GPT/internal/bot"
-	"github.com/pikachu0310/BOT_GPT/internal/gpt"
-	"github.com/pikachu0310/BOT_GPT/internal/handler"
-	"github.com/pikachu0310/BOT_GPT/internal/migration"
-	"github.com/pikachu0310/BOT_GPT/internal/pkg/config"
-	"github.com/pikachu0310/BOT_GPT/internal/repository"
+	"github.com/traPtitech/BOT_GPT/internal/bot"
+	"github.com/traPtitech/BOT_GPT/internal/gpt"
+	"github.com/traPtitech/BOT_GPT/internal/handler"
+	"github.com/traPtitech/BOT_GPT/internal/migration"
+	"github.com/traPtitech/BOT_GPT/internal/pkg/config"
+	"github.com/traPtitech/BOT_GPT/internal/repository"
 	"log"
 )
 
