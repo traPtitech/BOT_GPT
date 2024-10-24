@@ -17,6 +17,15 @@ func messageReceived(messageText, messagePlainText, channelID string) {
 			fmt.Println(err)
 		}
 
+		if containsReset(messageText) {
+			gpt.ChatReset(channelID)
+
+			return
+		}
+
+		imagesBase64 := bot.GetBase64ImagesFromMessage(messageText)
+		rag.Chat(channelID, messagePlainText, imagesBase64)
+
 		return
 	}
 
@@ -27,7 +36,7 @@ func messageReceived(messageText, messagePlainText, channelID string) {
 	}
 
 	imagesBase64 := bot.GetBase64ImagesFromMessage(messageText)
-	rag.Chat(channelID, messagePlainText, imagesBase64)
+	gpt.Chat(channelID, messagePlainText, imagesBase64)
 }
 
 /*
