@@ -170,7 +170,7 @@ func Chat(channelID, newMessageText string, imageBase64 []string) {
 		"LangChainCollection",
 		[]string{},
 		"",
-		[]string{},
+		[]string{"text"},
 		[]entity.Vector{entity.FloatVector(v1)},
 		"vector",
 		entity.COSINE,
