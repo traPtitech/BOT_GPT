@@ -18,7 +18,7 @@ func messageReceived(messageText, messagePlainText, channelID string) {
 		}
 
 		if containsReset(messageText) {
-			gpt.ChatReset(channelID)
+			rag.ChatReset(channelID)
 
 			return
 		}
