@@ -7,6 +7,7 @@ import (
 
 	"github.com/traPtitech/BOT_GPT/internal/bot"
 	"github.com/traPtitech/BOT_GPT/internal/gpt"
+	"github.com/traPtitech/BOT_GPT/internal/rag"
 )
 
 func messageReceived(messageText, messagePlainText, channelID string) {
@@ -15,6 +16,15 @@ func messageReceived(messageText, messagePlainText, channelID string) {
 		if err != nil {
 			fmt.Println(err)
 		}
+
+		if containsReset(messageText) {
+			rag.ChatReset(channelID)
+
+			return
+		}
+
+		imagesBase64 := bot.GetBase64ImagesFromMessage(messageText)
+		rag.Chat(channelID, messagePlainText, imagesBase64)
 
 		return
 	}
