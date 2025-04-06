@@ -22,9 +22,12 @@ jobs:
     steps:
       - name: PR Agent action step
         id: pragent
-        uses: Codium-ai/pr-agent@main
+        uses: qodo-ai/pr-agent@main
         env:
-          OPENAI_KEY: ${{ secrets.OPENAI_KEY }}
+          OPENAI_KEY: ${{ secrets.OPENAI_PROXY_KEY }}
+          OPENAI.API_BASE: 'https://llm-proxy.trap.jp'
+          CONFIG.MODEL: 'openai/gpt-4o'
+          CONFIG.MODEL_TURBO: 'openai/gpt-4o'
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_ACTION.AUTO_REVIEW: 'true'
           GITHUB_ACTION.AUTO_DESCRIBE: 'true'
