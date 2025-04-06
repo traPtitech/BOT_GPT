@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"log"
+
 	"github.com/jmoiron/sqlx"
 	"github.com/joho/godotenv"
 	"github.com/traPtitech/BOT_GPT/internal/bot"
@@ -9,8 +11,8 @@ import (
 	"github.com/traPtitech/BOT_GPT/internal/handler"
 	"github.com/traPtitech/BOT_GPT/internal/migration"
 	"github.com/traPtitech/BOT_GPT/internal/pkg/config"
+	"github.com/traPtitech/BOT_GPT/internal/rag"
 	"github.com/traPtitech/BOT_GPT/internal/repository"
-	"log"
 )
 
 func main() {
@@ -41,6 +43,7 @@ func main() {
 	// initialize bot and gpt
 	bot.InitBot()
 	gpt.InitGPT()
+	rag.InitGPT()
 
 	// setup bot
 	traQBot := bot.GetBot()
