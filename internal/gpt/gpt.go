@@ -4,13 +4,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/traPtitech/BOT_GPT/internal/bot"
-	"github.com/traPtitech/BOT_GPT/internal/repository"
 	"io"
 	"log"
 	"math/rand"
 	"os"
 	"time"
+
+	"github.com/traPtitech/BOT_GPT/internal/bot"
+	"github.com/traPtitech/BOT_GPT/internal/repository"
 
 	"github.com/sashabaranov/go-openai"
 )
@@ -54,7 +55,7 @@ func InitGPT() {
 }
 
 func getAPIKey() string {
-	key, exist := os.LookupEnv("OPENAI_API_KEY")
+	key, exist := os.LookupEnv("OPENAI_PROXY_API_KEY")
 	if !exist {
 		log.Fatal("OPENAI_API_KEY is not set")
 	}
@@ -79,7 +80,9 @@ func getRandomWarning() string {
 }
 
 func OpenAIStream(messages []Message, do func(string)) (responseMessage string, finishReason FinishReason, err error) {
-	c := openai.NewClient(apiKey)
+	config := openai.DefaultConfig(apiKey)
+	config.BaseURL = "https://llm-proxy.trap.jp"
+	c := openai.NewClientWithConfig(config)
 	ctx := context.Background()
 
 	model := openai.GPT4o
