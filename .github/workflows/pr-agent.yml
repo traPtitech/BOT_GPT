@@ -26,8 +26,8 @@ jobs:
         env:
           OPENAI_KEY: ${{ secrets.OPENAI_PROXY_KEY }}
           OPENAI.API_BASE: 'https://llm-proxy.trap.jp'
-          CONFIG.MODEL: 'openai/gpt-4o'
-          CONFIG.MODEL_TURBO: 'openai/gpt-4o'
+          CONFIG.MODEL: 'gpt-4o'
+          CONFIG.MODEL_TURBO: 'gpt-4o'
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_ACTION.AUTO_REVIEW: 'true'
           GITHUB_ACTION.AUTO_DESCRIBE: 'true'
