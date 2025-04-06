@@ -32,6 +32,7 @@ var (
 	blobsAndAmazed           = append(blobs[:], amazed[:]...)
 	warnings                 = [...]string{":warning:", ":ikura-hamu_shooting_warning:"}
 	apiKey                   string
+	baseURL                  string
 	DefaultSystemRoleMessage = "あなたはサークルである東京工業大学デジタル創作同好会traPの部内SNS「traQ」のユーザーを、楽しませる娯楽用途や勉強するための学習用途として、BOTの中に作られたOpenAIの最新モデルGPT4oを用いた対話型AIです。身内しかいないSNSで、ユーザーに緩く接してください。ユーザーの質問は以下の通りです"
 	ChannelMessages          = make(map[string][]Message)
 )
@@ -42,6 +43,7 @@ const SystemString = "FirstSystemMessageを変更しました。/gptsys showで�
 
 func InitGPT() {
 	apiKey = getAPIKey()
+	baseURL = getAPIBaseURL()
 
 	channelIDs, err := repository.GetChannelIDs()
 	if err != nil {
@@ -65,6 +67,15 @@ func getAPIKey() string {
 	return key
 }
 
+func getAPIBaseURL() string {
+	baseURL, exist := os.LookupEnv("OPENAI_BASE_URL")
+	if !exist {
+		log.Fatal("OPENAI_BASE_URL is not set")
+	}
+
+	return baseURL
+}
+
 func getRandomBlob() string {
 	return blobs[rand.Intn(len(blobs))]
 }
@@ -83,7 +94,7 @@ func getRandomWarning() string {
 
 func OpenAIStream(messages []Message, do func(string)) (responseMessage string, finishReason FinishReason, err error) {
 	config := openai.DefaultConfig(apiKey)
-	config.BaseURL = "https://llm-proxy.trap.jp"
+	config.BaseURL = baseURL
 	c := openai.NewClientWithConfig(config)
 	ctx := context.Background()
 
