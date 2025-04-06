@@ -87,7 +87,7 @@ func OpenAIStream(messages []Message, do func(string)) (responseMessage string, 
 	c := openai.NewClientWithConfig(config)
 	ctx := context.Background()
 
-	model := "openai/" + openai.GPT4o
+	model := openai.GPT4o
 
 	req := openai.ChatCompletionRequest{
 		Model:    model,
