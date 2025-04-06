@@ -92,7 +92,7 @@ func getRandomWarning() string {
 
 func OpenAIStream(messages []Message, do func(string)) (responseMessage string, finishReason FinishReason, err error) {
 	config := openai.DefaultConfig(apiKey)
-	config.BaseURL = "https://llm-proxy.trap.jp"
+	config.BaseURL = baseURL
 	c := openai.NewClientWithConfig(config)
 	ctx := context.Background()
 
