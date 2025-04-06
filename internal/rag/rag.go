@@ -13,8 +13,6 @@ import (
 	"github.com/traPtitech/BOT_GPT/internal/bot"
 	"github.com/traPtitech/BOT_GPT/internal/repository"
 
-	"github.com/milvus-io/milvus-sdk-go/v2/client"
-	"github.com/milvus-io/milvus-sdk-go/v2/entity"
 	"github.com/sashabaranov/go-openai"
 )
 
@@ -57,7 +55,7 @@ func InitGPT() {
 }
 
 func getAPIKey() string {
-	key, exist := os.LookupEnv("OPENAI_API_KEY")
+	key, exist := os.LookupEnv("OPENAI_PROXY_API_KEY")
 	if !exist {
 		log.Fatal("OPENAI_API_KEY is not set")
 	}
@@ -82,10 +80,12 @@ func getRandomWarning() string {
 }
 
 func OpenAIStream(messages []Message, do func(string)) (responseMessage string, finishReason FinishReason, err error) {
-	c := openai.NewClient(apiKey)
+	config := openai.DefaultConfig(apiKey)
+	config.BaseURL = "https://llm-proxy.trap.jp"
+	c := openai.NewClientWithConfig(config)
 	ctx := context.Background()
 
-	model := openai.GPT4o
+	model := "openai/" + openai.GPT4o
 
 	req := openai.ChatCompletionRequest{
 		Model:    model,
@@ -148,63 +148,63 @@ func Chat(channelID, newMessageText string, imageBase64 []string) {
 	}
 	addSystemMessageIfNotExist(channelID, DefaultSystemRoleMessage)
 
-	milvusURL := os.Getenv("MILVUS_API_URL")
-	milvusKey := os.Getenv("MILVUS_API_KEY")
-	mc, err := client.NewClient(context.Background(), client.Config{
-		Address: milvusURL,
-		APIKey:  milvusKey,
-	})
-	if err != nil {
-		fmt.Println(err)
-	}
-	defer mc.Close()
+	// milvusURL := os.Getenv("MILVUS_API_URL")
+	// milvusKey := os.Getenv("MILVUS_API_KEY")
+	// mc, err := client.NewClient(context.Background(), client.Config{
+	// 	Address: milvusURL,
+	// 	APIKey:  milvusKey,
+	// })
+	// if err != nil {
+	// 	fmt.Println(err)
+	// }
+	// defer mc.Close()
 
-	v1 := Embeddings(newMessageText)
-	sp, errSp := entity.NewIndexHNSWSearchParam(74)
-	if errSp != nil {
-		fmt.Println(errSp)
-	}
+	// v1 := Embeddings(newMessageText)
+	// sp, errSp := entity.NewIndexHNSWSearchParam(74)
+	// if errSp != nil {
+	// 	fmt.Println(errSp)
+	// }
 
-	searchRes, errSearch := mc.Search(
-		context.Background(),
-		"LangChainCollection",
-		[]string{},
-		"",
-		[]string{"text"},
-		[]entity.Vector{entity.FloatVector(v1)},
-		"vector",
-		entity.COSINE,
-		10,
-		sp,
-		client.WithSearchQueryConsistencyLevel(entity.ClBounded),
-	)
+	// searchRes, errSearch := mc.Search(
+	// 	context.Background(),
+	// 	"LangChainCollection",
+	// 	[]string{},
+	// 	"",
+	// 	[]string{"text"},
+	// 	[]entity.Vector{entity.FloatVector(v1)},
+	// 	"vector",
+	// 	entity.COSINE,
+	// 	10,
+	// 	sp,
+	// 	client.WithSearchQueryConsistencyLevel(entity.ClBounded),
+	// )
 
-	if errSearch != nil {
-		fmt.Println(errSearch)
-	}
+	// if errSearch != nil {
+	// 	fmt.Println(errSearch)
+	// }
 
-	if len(imageBase64) >= 1 {
-		addImageAndTextAsUser(channelID, newMessageText, imageBase64)
-	} else {
-		addMessageAsUser(channelID, newMessageText)
-	}
+	// if len(imageBase64) >= 1 {
+	// 	addImageAndTextAsUser(channelID, newMessageText, imageBase64)
+	// } else {
+	// 	addMessageAsUser(channelID, newMessageText)
+	// }
 
-	addMessageAsUser(channelID, "検索結果は以下の通りです。以下の結果のみを参考にしてください。")
+	// addMessageAsUser(channelID, "検索結果は以下の通りです。以下の結果のみを参考にしてください。")
 
-	for _, result := range searchRes {
-		textcol, ok := result.Fields.GetColumn("text").(*entity.ColumnVarChar)
-		if !ok {
-			fmt.Println("failed to get text column")
-		}
-		for i := 0; i < result.ResultCount; i++ {
-			text, err := textcol.ValueByIdx(i)
-			if err != nil {
-				fmt.Println(err)
-			}
-			addMessageAsUser(channelID, fmt.Sprintf("%d: %s", i, text))
+	// for _, result := range searchRes {
+	// 	textcol, ok := result.Fields.GetColumn("text").(*entity.ColumnVarChar)
+	// 	if !ok {
+	// 		fmt.Println("failed to get text column")
+	// 	}
+	// 	for i := 0; i < result.ResultCount; i++ {
+	// 		text, err := textcol.ValueByIdx(i)
+	// 		if err != nil {
+	// 			fmt.Println(err)
+	// 		}
+	// 		addMessageAsUser(channelID, fmt.Sprintf("%d: %s", i, text))
 
-		}
-	}
+	// 	}
+	// }
 	time.Sleep(50 * time.Millisecond)
 	postMessage, err := bot.PostMessageWithErr(channelID, getRandomBlob()+":loading:")
 	if err != nil {
