@@ -59,7 +59,7 @@ func InitGPT() {
 func getAPIKey() string {
 	key, exist := os.LookupEnv("OPENAI_PROXY_API_KEY")
 	if !exist {
-		log.Fatal("OPENAI_API_KEY is not set")
+		log.Fatal("OPENAI_PROXY_API_KEY is not set")
 	}
 
 	return key
