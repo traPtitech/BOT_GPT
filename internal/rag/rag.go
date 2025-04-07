@@ -68,9 +68,9 @@ func getAPIKey() string {
 }
 
 func getAPIBaseURL() string {
-	baseURL, exist := os.LookupEnv("OPENAI_BASE_URL")
+	baseURL, exist := os.LookupEnv("OPENAI_API_BASE_URL")
 	if !exist {
-		log.Fatal("OPENAI_BASE_URL is not set")
+		log.Fatal("OPENAI_API_BASE_URL is not set")
 	}
 
 	return baseURL
