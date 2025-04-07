@@ -10,11 +10,11 @@ import (
 	"os"
 	"time"
 
+	"github.com/milvus-io/milvus-sdk-go/v2/client"
+	"github.com/milvus-io/milvus-sdk-go/v2/entity"
 	"github.com/traPtitech/BOT_GPT/internal/bot"
 	"github.com/traPtitech/BOT_GPT/internal/repository"
 
-	"github.com/milvus-io/milvus-sdk-go/v2/client"
-	"github.com/milvus-io/milvus-sdk-go/v2/entity"
 	"github.com/sashabaranov/go-openai"
 )
 
@@ -32,6 +32,7 @@ var (
 	blobsAndAmazed           = append(blobs[:], amazed[:]...)
 	warnings                 = [...]string{":warning:", ":ikura-hamu_shooting_warning:"}
 	apiKey                   string
+	baseURL                  string
 	DefaultSystemRoleMessage = "あなたはサークルである東京工業大学デジタル創作同好会traPの部内SNS「traQ」のユーザーを、楽しませる娯楽用途や勉強するための学習用途として、BOTの中に作られたOpenAIの最新モデルGPT4oを用いた対話型AIです。身内しかいないSNSで、ユーザーに緩く接してください。ユーザーの質問は以下の通りです"
 	ChannelMessages          = make(map[string][]Message)
 )
@@ -42,6 +43,7 @@ const SystemString = "FirstSystemMessageを変更しました。/gptsys showで�
 
 func InitGPT() {
 	apiKey = getAPIKey()
+	baseURL = getAPIBaseURL()
 
 	channelIDs, err := repository.GetChannelIDs()
 	if err != nil {
@@ -57,12 +59,21 @@ func InitGPT() {
 }
 
 func getAPIKey() string {
-	key, exist := os.LookupEnv("OPENAI_API_KEY")
+	key, exist := os.LookupEnv("OPENAI_PROXY_API_KEY")
 	if !exist {
-		log.Fatal("OPENAI_API_KEY is not set")
+		log.Fatal("OPENAI_PROXY_API_KEY is not set")
 	}
 
 	return key
+}
+
+func getAPIBaseURL() string {
+	baseURL, exist := os.LookupEnv("OPENAI_BASE_URL")
+	if !exist {
+		log.Fatal("OPENAI_BASE_URL is not set")
+	}
+
+	return baseURL
 }
 
 func getRandomBlob() string {
@@ -82,7 +93,9 @@ func getRandomWarning() string {
 }
 
 func OpenAIStream(messages []Message, do func(string)) (responseMessage string, finishReason FinishReason, err error) {
-	c := openai.NewClient(apiKey)
+	config := openai.DefaultConfig(apiKey)
+	config.BaseURL = baseURL
+	c := openai.NewClientWithConfig(config)
 	ctx := context.Background()
 
 	model := openai.GPT4o
