@@ -90,13 +90,11 @@ func getRandomWarning() string {
 	return warnings[rand.Intn(len(warnings))]
 }
 
-func OpenAIStream(messages []Message, do func(string)) (responseMessage string, finishReason FinishReason, err error) {
+func OpenAIStream(messages []Message, model string, do func(string)) (responseMessage string, finishReason FinishReason, err error) {
 	config := openai.DefaultConfig(apiKey)
 	config.BaseURL = baseURL
 	c := openai.NewClientWithConfig(config)
 	ctx := context.Background()
-
-	model := openai.GPT4o
 
 	req := openai.ChatCompletionRequest{
 		Model:    model,
@@ -159,6 +157,12 @@ func Chat(channelID, newMessageText string, imageBase64 []string) {
 	}
 	addSystemMessageIfNotExist(channelID, DefaultSystemRoleMessage)
 
+	// チャンネルのモデル設定を取得
+	model, err := repository.GetModelForChannel(channelID)
+	if err != nil {
+		model = openai.GPT4o // デフォルト
+	}
+
 	if len(imageBase64) >= 1 {
 		addImageAndTextAsUser(channelID, newMessageText, imageBase64)
 	} else {
@@ -171,7 +175,7 @@ func Chat(channelID, newMessageText string, imageBase64 []string) {
 		bot.EditMessage(postMessage.Id, getRandomAmazed()+"Error: "+fmt.Sprint(err))
 	}
 
-	responseMessage, finishReason, err := OpenAIStream(ChannelMessages[channelID], func(responseMessage string) {
+	responseMessage, finishReason, err := OpenAIStream(ChannelMessages[channelID], model, func(responseMessage string) {
 		bot.EditMessage(postMessage.Id, responseMessage)
 	})
 	if err != nil {
