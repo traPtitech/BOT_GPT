@@ -30,13 +30,16 @@ func GetModelForChannel(channelID string) (string, error) {
 			// レコードが存在しない場合はデフォルトモデルを返す
 			return openai.GPT4o, nil
 		}
+
 		return "", err
 	}
+
 	return model, nil
 }
 
 // SetModelForChannel チャンネルのモデル設定を保存
 func SetModelForChannel(channelID, model string) error {
 	_, err := db.Exec("INSERT INTO channel_model_config (channel_id, model_name) VALUES (?, ?) ON DUPLICATE KEY UPDATE model_name = VALUES(model_name)", channelID, model)
+
 	return err
 }
