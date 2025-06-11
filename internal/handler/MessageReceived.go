@@ -68,6 +68,7 @@ func containsReset(input string) bool {
 */
 func containsModelCommand(input string) bool {
 	re := regexp.MustCompile(`(^|\s)/model($|\s)`)
+
 	return re.MatchString(input)
 }
 
@@ -85,6 +86,7 @@ func handleModelCommand(messageText, channelID string) {
 		if err != nil {
 			fmt.Println(err)
 		}
+
 		return
 	}
 
@@ -95,6 +97,7 @@ func handleModelCommand(messageText, channelID string) {
 		if err != nil {
 			fmt.Println(err)
 		}
+
 		return
 	}
 
@@ -106,6 +109,7 @@ func handleModelCommand(messageText, channelID string) {
 			if err != nil {
 				fmt.Println(err)
 			}
+
 			return
 		}
 
@@ -121,6 +125,7 @@ func handleModelCommand(messageText, channelID string) {
 			if err != nil {
 				fmt.Println(err)
 			}
+
 			return
 		}
 
@@ -130,6 +135,7 @@ func handleModelCommand(messageText, channelID string) {
 			if err != nil {
 				fmt.Println(err)
 			}
+
 			return
 		}
 
@@ -137,6 +143,7 @@ func handleModelCommand(messageText, channelID string) {
 		if err != nil {
 			fmt.Println(err)
 		}
+
 		return
 	}
 
@@ -152,6 +159,7 @@ func handleModelCommand(messageText, channelID string) {
 func isStaging(channelID string) bool {
 	staginChannelID, ok := os.LookupEnv("STAGING_CHANNEL_ID")
 	if !ok {
+
 		return false
 	}
 
