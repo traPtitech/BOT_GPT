@@ -29,6 +29,7 @@ func messageReceived(messageText, messagePlainText, channelID string) {
 
 		if containsModelCommand(messageText) {
 			handleModelCommand(messageText, channelID)
+
 			return
 		}
 
@@ -46,6 +47,7 @@ func messageReceived(messageText, messagePlainText, channelID string) {
 
 	if containsModelCommand(messageText) {
 		handleModelCommand(messageText, channelID)
+
 		return
 	}
 
