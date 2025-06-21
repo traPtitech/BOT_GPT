@@ -3,11 +3,12 @@ package bot
 import (
 	"context"
 	"fmt"
-	"github.com/traPtitech/go-traq"
-	traqwsbot "github.com/traPtitech/traq-ws-bot"
 	"log"
 	"os"
 	"strings"
+
+	"github.com/traPtitech/go-traq"
+	traqwsbot "github.com/traPtitech/traq-ws-bot"
 )
 
 var (
@@ -35,13 +36,27 @@ func InitBot() {
 }
 
 func RemoveFirstBotID(input string) string {
+	// Bot IDでの検索を試行
 	BotID := Info.Id
-	index := strings.Index(input, BotID)
+	mentionPattern := "@" + BotID
+	index := strings.Index(input, mentionPattern)
+
+	// Bot IDが見つからない場合は、Bot名での検索を試行
+	if index == -1 {
+		botName := Info.Name
+		mentionPattern = "@" + botName
+		index = strings.Index(input, mentionPattern)
+	}
+
 	if index == -1 {
 		return input
 	}
 
-	return input[:index] + input[index+len(BotID):]
+	// メンション部分を削除し、余分な空白を整理
+	result := input[:index] + input[index+len(mentionPattern):]
+	result = strings.TrimSpace(result)
+
+	return result
 }
 
 func GetToken() (token string) {
