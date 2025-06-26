@@ -94,7 +94,7 @@ func handleModelCommand(messageText, channelID string) {
 
 	// /model list - 利用可能なモデルを一覧表示
 	if strings.Contains(messageText, "/model list") {
-		availableModels := "利用可能なモデル:\n- gpt-4o (デフォルト)\n- o3\n- o4-mini"
+		availableModels := "利用可能なモデル:\n- gpt-4o(デフォルト)\n- gpt-4.1\n- o3\n- o4-mini"
 		_, err := bot.PostMessageWithErr(channelID, availableModels)
 		if err != nil {
 			fmt.Println(err)
@@ -118,6 +118,7 @@ func handleModelCommand(messageText, channelID string) {
 		modelName := parts[2]
 		validModels := map[string]bool{
 			openai.GPT4o:  true,
+			openai.GPT4Dot1: true,
 			openai.O3:     true,
 			openai.O4Mini: true,
 		}
