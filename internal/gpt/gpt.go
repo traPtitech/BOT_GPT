@@ -116,6 +116,7 @@ func OpenAIStream(messages []Message, model string, do func(string)) (responseMe
 		if stream.Err() != nil {
 			do(responseMessage + getRandomWarning() + ":blobglitch: Error: " + fmt.Sprint(stream.Err()))
 			finishReason = errorHappen
+
 			break
 		}
 
@@ -127,10 +128,12 @@ func OpenAIStream(messages []Message, model string, do func(string)) (responseMe
 					time.Sleep(200 * time.Millisecond)
 					do(responseMessage)
 					finishReason = stop
+
 					break
 				} else if choice.FinishReason == "length" {
 					do(responseMessage + "\n" + getRandomAmazed() + "トークン(履歴を含む文字数)が上限に達しました。/resetを実行してください。")
 					finishReason = length
+
 					break
 				}
 			}
@@ -262,14 +265,13 @@ func addMessageAsAssistant(channelID, message string) {
 
 func addSystemMessageIfNotExist(channelID, message string) {
 	roleHelper := &repository.RoleHelper{}
-	
-	// Check if system message already exists using proper role checking
+
 	if roleHelper.HasSystemMessage(ChannelMessages[channelID]) {
-		return // System message already exists
+		return
 	}
-	
+
 	systemMessage := openai.SystemMessage(message)
-	
+
 	// Insert system message at the beginning
 	ChannelMessages[channelID] = append([]Message{systemMessage}, ChannelMessages[channelID]...)
 

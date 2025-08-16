@@ -108,9 +108,6 @@ func OpenAIStream(messages []Message, model string, do func(string)) (responseMe
 	if stream.Err() != nil {
 		return "", errorHappen, stream.Err()
 	}
-	if err != nil {
-		return
-	}
 	defer stream.Close()
 
 	deltaTime := 500 * time.Millisecond
@@ -120,6 +117,7 @@ func OpenAIStream(messages []Message, model string, do func(string)) (responseMe
 		if stream.Err() != nil {
 			do(responseMessage + getRandomWarning() + ":blobglitch: Error: " + fmt.Sprint(stream.Err()))
 			finishReason = errorHappen
+
 			break
 		}
 
@@ -131,10 +129,12 @@ func OpenAIStream(messages []Message, model string, do func(string)) (responseMe
 					time.Sleep(200 * time.Millisecond)
 					do(responseMessage)
 					finishReason = stop
+
 					break
 				} else if choice.FinishReason == "length" {
 					do(responseMessage + "\n" + getRandomAmazed() + "トークン(履歴を含む文字数)が上限に達しました。/resetを実行してください。")
 					finishReason = length
+
 					break
 				}
 			}
@@ -316,14 +316,12 @@ func addMessageAsAssistant(channelID, message string) {
 
 func addSystemMessageIfNotExist(channelID, message string) {
 	roleHelper := &repository.RoleHelper{}
-	
-	// Check if system message already exists using proper role checking
 	if roleHelper.HasSystemMessage(ChannelMessages[channelID]) {
 		return // System message already exists
 	}
-	
+
 	systemMessage := openai.SystemMessage(message)
-	
+
 	// Insert system message at the beginning
 	ChannelMessages[channelID] = append([]Message{systemMessage}, ChannelMessages[channelID]...)
 
@@ -336,25 +334,42 @@ func addSystemMessageIfNotExist(channelID, message string) {
 }
 
 func Embeddings(content string) []float32 {
-	// For now, return a dummy embedding to allow RAG functionality to work
-	// TODO: Implement proper embeddings API call when the correct syntax is determined
-	fmt.Printf("Embeddings called for: %s (using dummy vector)\n", content[:min(50, len(content))])
-	
-	// Return a randomized dummy vector for testing
-	// In production, this should be replaced with actual OpenAI embeddings
-	result := make([]float32, 3072) // text-embedding-3-large size
-	for i := range result {
-		result[i] = float32(i%100) / 100.0 // Simple pattern for testing
-	}
-	
-	return result
-}
+	c := openai.NewClient(
+		option.WithAPIKey(apiKey),
+		option.WithBaseURL(baseURL),
+	)
+	ctx := context.Background()
 
-func min(a, b int) int {
-	if a < b {
-		return a
+	resp, err := c.Embeddings.New(ctx, openai.EmbeddingNewParams{
+		Input: openai.EmbeddingNewParamsInputUnion{
+			OfString: openai.String(content),
+		},
+		Model: openai.EmbeddingModelTextEmbedding3Large,
+	})
+	if err != nil {
+		fmt.Printf("Error creating embeddings: %v\n", err)
+		result := make([]float32, 3072)
+		for i := range result {
+			result[i] = float32(i%100) / 100.0
+		}
+		return result
 	}
-	return b
+
+	if len(resp.Data) > 0 && len(resp.Data[0].Embedding) > 0 {
+		embedding := resp.Data[0].Embedding
+		result := make([]float32, len(embedding))
+		for i, v := range embedding {
+			result[i] = float32(v)
+		}
+		return result
+	}
+
+	fmt.Printf("No embedding data returned, using dummy vector\n")
+	result := make([]float32, 3072)
+	for i := range result {
+		result[i] = float32(i%100) / 100.0
+	}
+	return result
 }
 
 //func updateSystemRoleMessage(channelID, message string) {
