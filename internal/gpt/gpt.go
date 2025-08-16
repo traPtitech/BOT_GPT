@@ -264,22 +264,19 @@ func addMessageAsAssistant(channelID, message string) {
 }
 
 func addSystemMessageIfNotExist(channelID, message string) {
-	roleHelper := &repository.RoleHelper{}
-
-	if roleHelper.HasSystemMessage(ChannelMessages[channelID]) {
-		return
+	for _, msg := range ChannelMessages[channelID] {
+		if msg.OfSystem != nil {
+			return
+		}
 	}
 
 	systemMessage := openai.SystemMessage(message)
 
-	// Insert system message at the beginning
 	ChannelMessages[channelID] = append([]Message{systemMessage}, ChannelMessages[channelID]...)
 
-	// Update all message indices in the database since we inserted at the beginning
-	for i, msg := range ChannelMessages[channelID] {
-		if err := repository.SaveMessage(channelID, i, msg); err != nil {
-			fmt.Printf("Failed to save message at index %d: %v\n", i, err)
-		}
+	index := 0
+	if err := repository.SaveMessage(channelID, index, systemMessage); err != nil {
+		fmt.Printf("Failed to save system message: %v\n", err)
 	}
 }
 
