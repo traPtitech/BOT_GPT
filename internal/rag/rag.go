@@ -14,6 +14,7 @@ import (
 	"github.com/traPtitech/BOT_GPT/internal/repository"
 
 	"github.com/openai/openai-go"
+	"github.com/openai/openai-go/option"
 )
 
 type FinishReason int
@@ -93,7 +94,10 @@ func getRandomWarning() string {
 }
 
 func OpenAIStream(messages []Message, model string, do func(string)) (responseMessage string, finishReason FinishReason, err error) {
-	c := openai.NewClient()
+	c := openai.NewClient(
+		option.WithAPIKey(apiKey),
+		option.WithBaseURL(baseURL),
+	)
 	ctx := context.Background()
 
 	req := openai.ChatCompletionNewParams{
