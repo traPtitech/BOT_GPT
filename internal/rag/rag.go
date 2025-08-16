@@ -350,6 +350,7 @@ func Embeddings(content string) []float32 {
 		for i := range result {
 			result[i] = float32(i%100) / 100.0
 		}
+
 		return result
 	}
 
@@ -359,6 +360,7 @@ func Embeddings(content string) []float32 {
 		for i, v := range embedding {
 			result[i] = float32(v)
 		}
+
 		return result
 	}
 
@@ -367,6 +369,7 @@ func Embeddings(content string) []float32 {
 	for i := range result {
 		result[i] = float32(i%100) / 100.0
 	}
+
 	return result
 }
 
