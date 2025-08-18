@@ -3,10 +3,11 @@ package repository
 import (
 	"bytes"
 	"encoding/gob"
-	"github.com/sashabaranov/go-openai"
+
+	"github.com/openai/openai-go"
 )
 
-func SaveMessage(channelID string, index int, message openai.ChatCompletionMessage) error {
+func SaveMessage(channelID string, index int, message openai.ChatCompletionMessageParamUnion) error {
 	var buf bytes.Buffer
 	enc := gob.NewEncoder(&buf)
 	err := enc.Encode(message)
@@ -21,8 +22,8 @@ func SaveMessage(channelID string, index int, message openai.ChatCompletionMessa
 	return err
 }
 
-func LoadMessages(channelID string) ([]openai.ChatCompletionMessage, error) {
-	var messages []openai.ChatCompletionMessage
+func LoadMessages(channelID string) ([]openai.ChatCompletionMessageParamUnion, error) {
+	var messages []openai.ChatCompletionMessageParamUnion
 	rows, err := db.Queryx("SELECT message FROM channel_messages WHERE channel_id = ? ORDER BY message_index", channelID)
 	if err != nil {
 		return nil, err
@@ -31,7 +32,7 @@ func LoadMessages(channelID string) ([]openai.ChatCompletionMessage, error) {
 
 	for rows.Next() {
 		var binaryMessage []byte
-		var message openai.ChatCompletionMessage
+		var message openai.ChatCompletionMessageParamUnion
 
 		err = rows.Scan(&binaryMessage)
 		if err != nil {

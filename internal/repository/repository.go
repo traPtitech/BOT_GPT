@@ -4,7 +4,7 @@ import (
 	"database/sql"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/sashabaranov/go-openai"
+	"github.com/openai/openai-go"
 )
 
 type Repository struct {
@@ -28,7 +28,7 @@ func GetModelForChannel(channelID string) (string, error) {
 	if err != nil {
 		if err == sql.ErrNoRows {
 			// レコードが存在しない場合はデフォルトモデルを返す
-			return openai.GPT4o, nil
+			return string(openai.ChatModelGPT4o), nil
 		}
 
 		return "", err

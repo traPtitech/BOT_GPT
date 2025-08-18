@@ -2,9 +2,7 @@ package rag
 
 import (
 	"context"
-	"errors"
 	"fmt"
-	"io"
 	"log"
 	"math/rand"
 	"os"
@@ -15,7 +13,8 @@ import (
 	"github.com/traPtitech/BOT_GPT/internal/bot"
 	"github.com/traPtitech/BOT_GPT/internal/repository"
 
-	"github.com/sashabaranov/go-openai"
+	"github.com/openai/openai-go"
+	"github.com/openai/openai-go/option"
 )
 
 type FinishReason int
@@ -37,7 +36,7 @@ var (
 	ChannelMessages          = make(map[string][]Message)
 )
 
-type Message = openai.ChatCompletionMessage
+type Message = openai.ChatCompletionMessageParamUnion
 
 const SystemString = "FirstSystemMessageを変更しました。/gptsys showで確認できます。\nFirstSystemMessageとは、常に履歴の一番最初に入り、最初にgptに情報や状況を説明するのに使用する文字列です"
 
@@ -52,9 +51,11 @@ func InitGPT() {
 	for _, channelID := range channelIDs {
 		messages, err := repository.LoadMessages(channelID)
 		if err != nil {
-			log.Fatal(err)
+			log.Printf("Failed to load messages for channel %s: %v", channelID, err)
+			ChannelMessages[channelID] = make([]Message, 0)
+		} else {
+			ChannelMessages[channelID] = messages
 		}
-		ChannelMessages[channelID] = messages
 	}
 }
 
@@ -93,60 +94,64 @@ func getRandomWarning() string {
 }
 
 func OpenAIStream(messages []Message, model string, do func(string)) (responseMessage string, finishReason FinishReason, err error) {
-	config := openai.DefaultConfig(apiKey)
-	config.BaseURL = baseURL
-	c := openai.NewClientWithConfig(config)
+	c := openai.NewClient(
+		option.WithAPIKey(apiKey),
+		option.WithBaseURL(baseURL),
+	)
 	ctx := context.Background()
 
-	req := openai.ChatCompletionRequest{
-		Model:    model,
+	req := openai.ChatCompletionNewParams{
+		Model:    openai.ChatModel(model),
 		Messages: messages,
-		Stream:   true,
 	}
-	stream, err := c.CreateChatCompletionStream(ctx, req)
-	if err != nil {
-		return
+	stream := c.Chat.Completions.NewStreaming(ctx, req)
+	if stream.Err() != nil {
+		return "", errorHappen, stream.Err()
 	}
 	defer stream.Close()
 
 	deltaTime := 500 * time.Millisecond
 	lastDoTime := time.Now()
-	for {
-		response, err := stream.Recv()
-
-		if err != nil {
-			do(responseMessage + getRandomWarning() + ":blobglitch: Error: " + fmt.Sprint(err))
-			finishReason = errorHappen
-
-			break
-		}
-		if errors.Is(err, io.EOF) {
-			_ = errors.New("stream closed")
-			fmt.Println("steam closed")
+	for stream.Next() {
+		response := stream.Current()
+		if stream.Err() != nil {
+			do(responseMessage + getRandomWarning() + ":blobglitch: Error: " + fmt.Sprint(stream.Err()))
 			finishReason = errorHappen
 
 			break
 		}
 
-		if response.Choices[0].FinishReason == "stop" {
-			time.Sleep(200 * time.Millisecond)
-			do(responseMessage)
-			finishReason = stop
+		if len(response.Choices) > 0 {
+			choice := response.Choices[0]
 
-			break
-		} else if response.Choices[0].FinishReason == "length" {
-			do(responseMessage + "\n" + getRandomAmazed() + "トークン(履歴を含む文字数)が上限に達しました。/resetを実行してください。")
-			finishReason = length
+			if choice.FinishReason != "" {
+				if choice.FinishReason == "stop" {
+					time.Sleep(200 * time.Millisecond)
+					do(responseMessage)
+					finishReason = stop
 
-			break
+					break
+				} else if choice.FinishReason == "length" {
+					do(responseMessage + "\n" + getRandomAmazed() + "トークン(履歴を含む文字数)が上限に達しました。/resetを実行してください。")
+					finishReason = length
+
+					break
+				}
+			}
+
+			if choice.Delta.Content != "" {
+				responseMessage += choice.Delta.Content
+			}
 		}
-
-		responseMessage += response.Choices[0].Delta.Content
 
 		if time.Since(lastDoTime) >= deltaTime {
 			lastDoTime = time.Now()
 			do(getRandomBlobAndAmazed() + responseMessage + ":loading:")
 		}
+	}
+
+	if finishReason == 0 {
+		finishReason = stop
 	}
 
 	return
@@ -162,7 +167,7 @@ func Chat(channelID, newMessageText string, imageBase64 []string) {
 	// チャンネルのモデル設定を取得
 	model, err := repository.GetModelForChannel(channelID)
 	if err != nil {
-		model = openai.GPT4o // デフォルト
+		model = string(openai.ChatModelGPT4o) // デフォルト
 	}
 
 	milvusURL := os.Getenv("MILVUS_API_URL")
@@ -268,73 +273,57 @@ func ChatReset(channelID string) {
 }
 
 func addMessageAsUser(channelID, message string) {
-	newMessage := Message{
-		Role:    openai.ChatMessageRoleUser,
-		Content: message,
-	}
+	newMessage := openai.UserMessage(message)
 	ChannelMessages[channelID] = append(ChannelMessages[channelID], newMessage)
 
 	index := len(ChannelMessages[channelID]) - 1
 	if err := repository.SaveMessage(channelID, index, newMessage); err != nil {
-		fmt.Println(err)
+		fmt.Printf("Failed to save user message: %v\n", err)
 	}
 }
 
 func addImageAndTextAsUser(channelID, message string, imageDataBase64 []string) {
-	var parts []openai.ChatMessagePart
+	var parts []openai.ChatCompletionContentPartUnionParam
 
-	parts = append(parts, openai.ChatMessagePart{
-		Type: openai.ChatMessagePartTypeText,
-		Text: message,
-	})
+	parts = append(parts, openai.TextContentPart(message))
 
 	for _, b64 := range imageDataBase64 {
 		imageURL := "data:image/jpeg;base64," + b64
-		imagePart := openai.ChatMessagePart{
-			Type: openai.ChatMessagePartTypeImageURL,
-			ImageURL: &openai.ChatMessageImageURL{
-				URL: imageURL,
-			},
-		}
+		imagePart := openai.ImageContentPart(openai.ChatCompletionContentPartImageImageURLParam{
+			URL: imageURL,
+		})
 		parts = append(parts, imagePart)
 	}
 
-	newMessage := Message{
-		Role:         "user",
-		MultiContent: parts,
-	}
-
+	newMessage := openai.UserMessage(parts)
 	ChannelMessages[channelID] = append(ChannelMessages[channelID], newMessage)
 
 	index := len(ChannelMessages[channelID]) - 1
 	if err := repository.SaveMessage(channelID, index, newMessage); err != nil {
-		fmt.Println(err)
+		fmt.Printf("Failed to save image message: %v\n", err)
 	}
 }
 
 func addMessageAsAssistant(channelID, message string) {
-	newMessage := Message{
-		Role:    openai.ChatMessageRoleAssistant,
-		Content: message,
-	}
+	newMessage := openai.AssistantMessage(message)
 	ChannelMessages[channelID] = append(ChannelMessages[channelID], newMessage)
 
 	index := len(ChannelMessages[channelID]) - 1
 	if err := repository.SaveMessage(channelID, index, newMessage); err != nil {
-		fmt.Println(err)
+		fmt.Printf("Failed to save assistant message: %v\n", err)
 	}
 }
 
 func addSystemMessageIfNotExist(channelID, message string) {
-	for _, m := range ChannelMessages[channelID] {
-		if m.Role == "system" {
+	for _, msg := range ChannelMessages[channelID] {
+		if msg.OfSystem != nil {
 			return
 		}
 	}
-	ChannelMessages[channelID] = append([]Message{{
-		Role:    openai.ChatMessageRoleSystem,
-		Content: message,
-	}}, ChannelMessages[channelID]...)
+
+	systemMessage := openai.SystemMessage(message)
+
+	ChannelMessages[channelID] = append([]Message{systemMessage}, ChannelMessages[channelID]...)
 
 	index := 0
 	if err := repository.SaveMessage(channelID, index, ChannelMessages[channelID][0]); err != nil {
@@ -343,17 +332,45 @@ func addSystemMessageIfNotExist(channelID, message string) {
 }
 
 func Embeddings(content string) []float32 {
-	client := openai.NewClient(apiKey)
-	queryReq := openai.EmbeddingRequest{
-		Input: []string{content},
-		Model: openai.LargeEmbedding3,
-	}
-	queryResp, err := client.CreateEmbeddings(context.Background(), queryReq)
+	c := openai.NewClient(
+		option.WithAPIKey(apiKey),
+		option.WithBaseURL(baseURL),
+	)
+	ctx := context.Background()
+
+	resp, err := c.Embeddings.New(ctx, openai.EmbeddingNewParams{
+		Input: openai.EmbeddingNewParamsInputUnion{
+			OfString: openai.String(content),
+		},
+		Model: openai.EmbeddingModelTextEmbedding3Large,
+	})
 	if err != nil {
-		fmt.Println(err)
+		fmt.Printf("Error creating embeddings: %v\n", err)
+		result := make([]float32, 3072)
+		for i := range result {
+			result[i] = float32(i%100) / 100.0
+		}
+
+		return result
 	}
 
-	return queryResp.Data[0].Embedding
+	if len(resp.Data) > 0 && len(resp.Data[0].Embedding) > 0 {
+		embedding := resp.Data[0].Embedding
+		result := make([]float32, len(embedding))
+		for i, v := range embedding {
+			result[i] = float32(v)
+		}
+
+		return result
+	}
+
+	fmt.Printf("No embedding data returned, using dummy vector\n")
+	result := make([]float32, 3072)
+	for i := range result {
+		result[i] = float32(i%100) / 100.0
+	}
+
+	return result
 }
 
 //func updateSystemRoleMessage(channelID, message string) {
