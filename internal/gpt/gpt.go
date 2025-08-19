@@ -135,12 +135,25 @@ func OpenAIStream(messages Message, model string, do func(string)) (responseMess
 	)
 	ctx := context.Background()
 
+	tools := make([]responses.ToolUnionParam, 0)
+	tools = append(tools, responses.ToolUnionParam{
+		OfMcp: &responses.ToolMcpParam{
+			ServerLabel: "deepwiki",
+			ServerURL:   "https://mcp.deepwiki.com/mcp",
+			RequireApproval: responses.ToolMcpRequireApprovalUnionParam{
+				OfMcpToolApprovalSetting: openai.Opt("never"),
+			},
+		},
+
+	})
+
 	// Response APIで全メッセージ履歴を使用
 	req := responses.ResponseNewParams{
 		Model: openai.ChatModel(model),
 		Input: responses.ResponseNewParamsInputUnion{
 			OfInputItemList: responses.ResponseInputParam(messages),
 		},
+		Tools: tools,
 	}
 	stream := c.Responses.NewStreaming(ctx, req)
 	if stream.Err() != nil {
