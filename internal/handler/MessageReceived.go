@@ -11,7 +11,7 @@ import (
 	"github.com/traPtitech/BOT_GPT/internal/rag"
 	"github.com/traPtitech/BOT_GPT/internal/repository"
 
-	"github.com/openai/openai-go"
+	"github.com/openai/openai-go/v2"
 )
 
 func messageReceived(messageText, messagePlainText, channelID string) {
