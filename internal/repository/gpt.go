@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/gob"
 
-	"github.com/openai/openai-go"
+	"github.com/openai/openai-go/v2"
 )
 
 func SaveMessage(channelID string, index int, message openai.ChatCompletionMessageParamUnion) error {
