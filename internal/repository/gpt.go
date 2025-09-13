@@ -3,7 +3,8 @@ package repository
 import (
 	"bytes"
 	"encoding/gob"
-	"github.com/sashabaranov/go-openai"
+
+	"github.com/openai/openai-go/v2"
 )
 
 func SaveMessage(channelID string, index int, message openai.ChatCompletionMessage) error {

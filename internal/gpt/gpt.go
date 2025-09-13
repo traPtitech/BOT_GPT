@@ -13,7 +13,8 @@ import (
 	"github.com/traPtitech/BOT_GPT/internal/bot"
 	"github.com/traPtitech/BOT_GPT/internal/repository"
 
-	"github.com/sashabaranov/go-openai"
+	"github.com/openai/openai-go/v2"
+	"github.com/openai/openai-go/v2/option"
 )
 
 type FinishReason int
