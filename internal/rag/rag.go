@@ -16,6 +16,7 @@ import (
 	"github.com/traPtitech/BOT_GPT/internal/repository"
 
 	"github.com/openai/openai-go/v2"
+	"github.com/openai/openai-go/v2/option"
 )
 
 type FinishReason int
@@ -162,7 +163,7 @@ func Chat(channelID, newMessageText string, imageBase64 []string) {
 	// チャンネルのモデル設定を取得
 	model, err := repository.GetModelForChannel(channelID)
 	if err != nil {
-		model = string(openai.ChatModelGPT4_1Mini2025_04_14) // デフォルト
+		model = string(openai.ChatModelGPT4_1Mini) // デフォルト
 	}
 
 	milvusURL := os.Getenv("MILVUS_API_URL")
