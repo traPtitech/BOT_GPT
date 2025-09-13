@@ -4,7 +4,7 @@ import (
 	"database/sql"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/sashabaranov/go-openai"
+	"github.com/openai/openai-go/v2"
 )
 
 type Repository struct {
