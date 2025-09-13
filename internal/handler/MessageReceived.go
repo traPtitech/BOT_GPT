@@ -117,10 +117,11 @@ func handleModelCommand(messageText, channelID string) {
 
 		modelName := parts[2]
 		validModels := map[string]bool{
-			string(openai.ChatModelGPT4o):  true,
-			string(openai.ChatModelGPT4_1): true,
-			string(openai.ChatModelO3):     true,
-			string(openai.ChatModelO4Mini): true,
+			string(openai.ChatModelGPT4o):      true,
+			string(openai.ChatModelGPT4_1):     true,
+			string(openai.ChatModelGPT4_1Mini): true,
+			string(openai.ChatModelO3):         true,
+			string(openai.ChatModelO4Mini):     true,
 		}
 
 		if !validModels[modelName] {
