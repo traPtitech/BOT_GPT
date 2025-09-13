@@ -11,7 +11,7 @@ import (
 	"github.com/traPtitech/BOT_GPT/internal/rag"
 	"github.com/traPtitech/BOT_GPT/internal/repository"
 
-	"github.com/sashabaranov/go-openai"
+	"github.com/openai/openai-go"
 )
 
 func messageReceived(messageText, messagePlainText, channelID string) {
@@ -117,11 +117,11 @@ func handleModelCommand(messageText, channelID string) {
 
 		modelName := parts[2]
 		validModels := map[string]bool{
-			string(openai.ChatModelGPT4o):      true,
-			string(openai.ChatModelGPT4_1):     true,
-			string(openai.ChatModelGPT4_1Mini): true,
-			string(openai.ChatModelO3):         true,
-			string(openai.ChatModelO4Mini):     true,
+			string(openai.ChatModelGPT4o):                true,
+			string(openai.ChatModelGPT4_1):               true,
+			string(openai.ChatModelGPT4_1Mini2025_04_14): true,
+			string(openai.ChatModelO3):                   true,
+			string(openai.ChatModelO4Mini):               true,
 		}
 
 		if !validModels[modelName] {
