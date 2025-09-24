@@ -37,6 +37,7 @@ func (o MCPOptions) validate() error {
 	if strings.TrimSpace(o.ApprovalPolicy) == "" {
 		return errors.New("mcp approval policy is required")
 	}
+
 	return nil
 }
 
@@ -46,6 +47,7 @@ func (s Spec) Validate() error {
 		if s.MCP == nil {
 			return errors.New("mcp options must be provided")
 		}
+
 		return s.MCP.validate()
 	default:
 		return fmt.Errorf("unsupported tool kind: %s", s.Kind)

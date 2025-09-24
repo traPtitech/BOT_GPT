@@ -40,6 +40,7 @@ var (
 func SetToolProvider(p tooling.Provider) {
 	if p == nil {
 		toolProvider = tooling.NewStaticProvider(tooling.DefaultSpecs())
+
 		return
 	}
 
@@ -170,6 +171,7 @@ func OpenAIStream(messages Message, model string, do func(string)) (responseMess
 		if stream.Err() != nil {
 			do(responseMessage + getRandomWarning() + ":blobglitch: Error: " + fmt.Sprint(stream.Err()))
 			finishReason = errorHappen
+
 			break
 		}
 
