@@ -92,6 +92,7 @@ func NewStaticProvider(specs []Spec) *StaticProvider {
 			copied[i].MCP = &opts
 		}
 	}
+
 	return &StaticProvider{specs: copied}
 }
 

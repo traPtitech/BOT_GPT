@@ -28,7 +28,6 @@ const (
 var (
 	blobs                    = [...]string{":blob_bongo:", ":blob_crazy_happy:", ":blob_grin:", ":blob_hype:", ":blob_love:", ":blob_lurk:", ":blob_pyon:", ":blob_pyon_inverse:", ":blob_slide:", ":blob_snowball_1:", ":blob_snowball_2:", ":blob_speedy_roll:", ":blob_speedy_roll_inverse:", ":blob_thinking:", ":blob_thinking_fast:", ":blob_thinking_portal:", ":blob_thinking_upsidedown:", ":blob_thonkang:", ":blob_thumbs_up:", ":blobblewobble:", ":blobenjoy:", ":blobglitch:", ":blobbass:", ":blobjam:", ":blobkeyboard:", ":bloblamp:", ":blobmaracas:", ":blobmicrophone:", ":blobthinksmart:", ":blobwobwork:", ":conga_party_thinking_blob:", ":Hyperblob:", ":party_blob:", ":partyparrot_blob:", ":partyparrot_blob_cat:"}
 	amazed                   = [...]string{":amazed_fuzzy:", ":amazed_amazed_fuzzy:", ":amazed_god_enel:", ":amazed_hamutaro:"}
-	blobsAndAmazed           = append(blobs[:], amazed[:]...)
 	warnings                 = [...]string{":warning:", ":ikura-hamu_shooting_warning:"}
 	apiKey                   string
 	baseURL                  string
@@ -130,10 +129,6 @@ func getRandomBlob() string {
 
 func getRandomAmazed() string {
 	return amazed[rand.Intn(len(amazed))]
-}
-
-func getRandomBlobAndAmazed() string {
-	return blobsAndAmazed[rand.Intn(len(blobsAndAmazed))]
 }
 
 func getRandomWarning() string {
@@ -288,11 +283,6 @@ func addMessageAsUser(channelID, message string) {
 
 func addImageAndTextAsUser(channelID, message string, imageDataBase64 []string) {
 	// 現時点では画像もテキストとして扱う
-	fullMessage := message
-	if len(imageDataBase64) > 0 {
-		fullMessage += fmt.Sprintf(" [%d images attached]", len(imageDataBase64))
-	}
-
 	var content responses.ResponseInputMessageContentListParam
 	content = append(content, responses.ResponseInputContentParamOfInputText(message))
 	if len(imageDataBase64) > 0 {
