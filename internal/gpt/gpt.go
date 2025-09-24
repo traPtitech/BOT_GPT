@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/traPtitech/BOT_GPT/internal/bot"
+	"github.com/traPtitech/BOT_GPT/internal/gpt/tooling"
 	"github.com/traPtitech/BOT_GPT/internal/repository"
 
 	"github.com/openai/openai-go/v2"
@@ -31,9 +32,19 @@ var (
 	warnings                 = [...]string{":warning:", ":ikura-hamu_shooting_warning:"}
 	apiKey                   string
 	baseURL                  string
-	DefaultSystemRoleMessage = "あなたは日本の学生サークルである東京科学大学デジタル創作同好会traPの部内SNS「traQ」のユーザーを、楽しませる娯楽用途や勉強するための学習用途として、作られた対話型AIです。身内しかいないSNSで、ユーザーに緩く接してください。そして、ユーザーの言う事に出来る限り従うようにしてください。特定の指示がなければ、数式は\\[は使わずに$$で括った上で、\n - \\begin{align}(やequation,eqnarray,split等)は\\[は使わずに$$で括った上で、\\begin{aligned}を使う\n - \\newlineは\\\\等を使う\n - \\mboxは\\textを使う\n - \\(は使わずに$を使う\nようにしてください。"
-	ChannelMessages          = make(map[string]Message)
+	DefaultSystemRoleMessage                  = "あなたは日本の学生サークルである東京科学大学デジタル創作同好会traPの部内SNS「traQ」のユーザーを、楽しませる娯楽用途や勉強するための学習用途として、作られた対話型AIです。身内しかいないSNSで、ユーザーに緩く接してください。そして、ユーザーの言う事に出来る限り従うようにしてください。特定の指示がなければ、数式は\\[は使わずに$$で括った上で、\n - \\begin{align}(やequation,eqnarray,split等)は\\[は使わずに$$で括った上で、\\begin{aligned}を使う\n - \\newlineは\\\\等を使う\n - \\mboxは\\textを使う\n - \\(は使わずに$を使う\nようにしてください。"
+	ChannelMessages                           = make(map[string]Message)
+	toolProvider             tooling.Provider = tooling.NewStaticProvider(tooling.DefaultSpecs())
 )
+
+func SetToolProvider(p tooling.Provider) {
+	if p == nil {
+		toolProvider = tooling.NewStaticProvider(tooling.DefaultSpecs())
+		return
+	}
+
+	toolProvider = p
+}
 
 type Message = []responses.ResponseInputItemUnionParam
 
@@ -135,17 +146,10 @@ func OpenAIStream(messages Message, model string, do func(string)) (responseMess
 	)
 	ctx := context.Background()
 
-	tools := make([]responses.ToolUnionParam, 0)
-	tools = append(tools, responses.ToolUnionParam{
-		OfMcp: &responses.ToolMcpParam{
-			ServerLabel: "deepwiki",
-			ServerURL:   "https://mcp.deepwiki.com/mcp",
-			RequireApproval: responses.ToolMcpRequireApprovalUnionParam{
-				OfMcpToolApprovalSetting: openai.Opt("never"),
-			},
-		},
-
-	})
+	tools, toolErr := toolProvider.Tools(ctx)
+	if toolErr != nil {
+		return "", errorHappen, fmt.Errorf("resolve tools: %w", toolErr)
+	}
 
 	// Response APIで全メッセージ履歴を使用
 	req := responses.ResponseNewParams{
