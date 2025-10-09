@@ -28,7 +28,7 @@ func GetModelForChannel(channelID string) (string, error) {
 	if err != nil {
 		if err == sql.ErrNoRows {
 			// レコードが存在しない場合はデフォルトモデルを返す
-			return string(openai.ChatModelGPT4o), nil
+			return string(openai.ChatModelGPT4_1Mini), nil
 		}
 
 		return "", err
