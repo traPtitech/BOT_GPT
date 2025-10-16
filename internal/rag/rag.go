@@ -167,7 +167,7 @@ func Chat(channelID, newMessageText string, imageBase64 []string) {
 	// チャンネルのモデル設定を取得
 	model, err := repository.GetModelForChannel(channelID)
 	if err != nil {
-		model = string(openai.ChatModelGPT4_1Mini) // デフォルト
+		model = string(openai.ChatModelGPT4o) // デフォルト
 	}
 
 	milvusURL := os.Getenv("MILVUS_API_URL")

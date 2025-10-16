@@ -82,7 +82,7 @@ func handleModelCommand(messageText, channelID string) {
 	if strings.Contains(messageText, "/model show") {
 		currentModel, err := repository.GetModelForChannel(channelID)
 		if err != nil {
-			currentModel = "gpt-4.1-mini"
+			currentModel = "gpt-4o"
 		}
 		_, err = bot.PostMessageWithErr(channelID, fmt.Sprintf("現在のモデル: %s", currentModel))
 		if err != nil {
@@ -94,7 +94,7 @@ func handleModelCommand(messageText, channelID string) {
 
 	// /model list - 利用可能なモデルを一覧表示
 	if strings.Contains(messageText, "/model list") {
-		availableModels := "利用可能なモデル:\n- gpt-4o\n- gpt-4.1\n- gpt-4.1-mini(デフォルト)\n- o3\n- o4-mini"
+		availableModels := "利用可能なモデル:\n- gpt-4o\n- gpt-5\n- gpt-5-mini\n- gpt-5-nano\n- o3\n- o4-mini"
 		_, err := bot.PostMessageWithErr(channelID, availableModels)
 		if err != nil {
 			fmt.Println(err)
@@ -107,7 +107,7 @@ func handleModelCommand(messageText, channelID string) {
 	if strings.Contains(messageText, "/model set") {
 		parts := strings.Split(messageText, " ")
 		if len(parts) < 3 {
-			_, err := bot.PostMessageWithErr(channelID, "使用方法: /model set <model_name>\n例: /model set gpt-4.1-mini")
+			_, err := bot.PostMessageWithErr(channelID, "使用方法: /model set <model_name>\n例: /model set gpt-4o")
 			if err != nil {
 				fmt.Println(err)
 			}
@@ -117,11 +117,12 @@ func handleModelCommand(messageText, channelID string) {
 
 		modelName := parts[2]
 		validModels := map[string]bool{
-			string(openai.ChatModelGPT4o):      true,
-			string(openai.ChatModelGPT4_1):     true,
-			string(openai.ChatModelGPT4_1Mini): true,
-			string(openai.ChatModelO3):         true,
-			string(openai.ChatModelO4Mini):     true,
+			string(openai.ChatModelGPT4o): true,
+			"gpt-5":                        true,
+			"gpt-5-mini":                   true,
+			"gpt-5-nano":                   true,
+			string(openai.ChatModelO3):     true,
+			string(openai.ChatModelO4Mini): true,
 		}
 
 		if !validModels[modelName] {
