@@ -9,7 +9,7 @@ require (
 	github.com/jmoiron/sqlx v1.4.0
 	github.com/joho/godotenv v1.5.1
 	github.com/milvus-io/milvus-sdk-go/v2 v2.4.2
-	github.com/openai/openai-go/v2 v2.1.0
+	github.com/openai/openai-go/v2 v2.7.1
 	github.com/pressly/goose/v3 v3.20.0
 	github.com/traPtitech/go-traq v0.0.0-20240509050113-9343acbeec35
 	github.com/traPtitech/traq-ws-bot v1.1.3

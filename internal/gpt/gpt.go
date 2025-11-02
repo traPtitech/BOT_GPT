@@ -217,7 +217,7 @@ func Chat(channelID, newMessageText string, imageBase64 []string) {
 	// チャンネルのモデル設定を取得
 	model, err := repository.GetModelForChannel(channelID)
 	if err != nil {
-		model = string(openai.ChatModelGPT4o) // デフォルト
+		model = string(openai.ChatModelGPT5Mini) // デフォルト
 	}
 
 	if len(imageBase64) >= 1 {
