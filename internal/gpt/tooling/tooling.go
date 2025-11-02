@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/openai/openai-go/v2"
+	"github.com/openai/openai-go/v2/packages/param"
 	"github.com/openai/openai-go/v2/responses"
 )
 
@@ -64,7 +65,7 @@ func (s Spec) ToResponseTool() (responses.ToolUnionParam, error) {
 		return responses.ToolUnionParam{
 			OfMcp: &responses.ToolMcpParam{
 				ServerLabel: s.MCP.ServerLabel,
-				ServerURL:   s.MCP.ServerURL,
+				ServerURL:   param.NewOpt(s.MCP.ServerURL),
 				RequireApproval: responses.ToolMcpRequireApprovalUnionParam{
 					OfMcpToolApprovalSetting: openai.Opt(s.MCP.ApprovalPolicy),
 				},
