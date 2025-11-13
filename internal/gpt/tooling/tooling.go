@@ -24,7 +24,7 @@ type Spec struct {
 
 type MCPOptions struct {
 	ServerLabel    string
-	ServerURL      string
+	ServerURL      param.Opt[string]
 	ApprovalPolicy string
 }
 
@@ -32,7 +32,7 @@ func (o MCPOptions) validate() error {
 	if strings.TrimSpace(o.ServerLabel) == "" {
 		return errors.New("mcp server label is required")
 	}
-	if strings.TrimSpace(o.ServerURL) == "" {
+	if !o.ServerURL.Valid() {
 		return errors.New("mcp server url is required")
 	}
 	if strings.TrimSpace(o.ApprovalPolicy) == "" {
@@ -65,7 +65,7 @@ func (s Spec) ToResponseTool() (responses.ToolUnionParam, error) {
 		return responses.ToolUnionParam{
 			OfMcp: &responses.ToolMcpParam{
 				ServerLabel: s.MCP.ServerLabel,
-				ServerURL:   param.NewOpt(s.MCP.ServerURL),
+				ServerURL:   s.MCP.ServerURL,
 				RequireApproval: responses.ToolMcpRequireApprovalUnionParam{
 					OfMcpToolApprovalSetting: openai.Opt(s.MCP.ApprovalPolicy),
 				},
@@ -122,7 +122,7 @@ func DefaultSpecs() []Spec {
 			Kind: ToolKindMCP,
 			MCP: &MCPOptions{
 				ServerLabel:    "deepwiki",
-				ServerURL:      "https://mcp.deepwiki.com/mcp",
+				ServerURL:      param.NewOpt("https://mcp.deepwiki.com/mcp"),
 				ApprovalPolicy: "never",
 			},
 		},

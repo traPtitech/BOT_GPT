@@ -3,6 +3,8 @@ package tooling
 import (
 	"context"
 	"testing"
+
+	"github.com/openai/openai-go/v2/packages/param"
 )
 
 func TestSpecToResponseTool_MCP(t *testing.T) {
@@ -10,7 +12,7 @@ func TestSpecToResponseTool_MCP(t *testing.T) {
 		Kind: ToolKindMCP,
 		MCP: &MCPOptions{
 			ServerLabel:    "deepwiki",
-			ServerURL:      "https://mcp.deepwiki.com/mcp",
+			ServerURL:      param.NewOpt("https://mcp.deepwiki.com/mcp"),
 			ApprovalPolicy: "never",
 		},
 	}
@@ -56,7 +58,7 @@ func TestStaticProviderTools(t *testing.T) {
 			Kind: ToolKindMCP,
 			MCP: &MCPOptions{
 				ServerLabel:    "deepwiki",
-				ServerURL:      "https://mcp.deepwiki.com/mcp",
+				ServerURL:      param.NewOpt("https://mcp.deepwiki.com/mcp"),
 				ApprovalPolicy: "never",
 			},
 		},
