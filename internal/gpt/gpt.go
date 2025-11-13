@@ -269,6 +269,12 @@ func ChatReset(channelID string) {
 	if err = repository.DeleteMessages(channelID); err != nil {
 		fmt.Println(err)
 	}
+
+	// モデルをデフォルトにリセット
+	defaultModel := string(openai.ChatModelGPT5Mini)
+	if err = repository.SetModelForChannel(channelID, defaultModel); err != nil {
+		fmt.Printf("Failed to reset model for channel %s: %v\n", channelID, err)
+	}
 }
 
 func addMessageAsUser(channelID, message string) {
