@@ -26,7 +26,7 @@ func InitBot() {
 		log.Fatalf("error: Bot変数が作れなかった!: %v", err)
 	}
 
-	botInfo, res, err := bot.API().MeApi.GetMe(context.Background()).Execute()
+	botInfo, res, err := bot.API().MeAPI.GetMe(context.Background()).Execute()
 	if err != nil || res.StatusCode != 200 {
 		log.Fatalf("error: 自分の情報を取得できませんでした: %v", err)
 	}
@@ -74,21 +74,21 @@ func GetBot() *traqwsbot.Bot {
 
 func Join(ChannelID string) error {
 	bot := GetBot()
-	_, err := bot.API().BotApi.LetBotJoinChannel(context.Background(), Info.Id).PostBotActionJoinRequest(traq.PostBotActionJoinRequest{ChannelId: ChannelID}).Execute()
+	_, err := bot.API().BotAPI.LetBotJoinChannel(context.Background(), Info.Id).PostBotActionJoinRequest(traq.PostBotActionJoinRequest{ChannelId: ChannelID}).Execute()
 
 	return err
 }
 
 func Leave(ChannelID string) error {
 	bot := GetBot()
-	_, err := bot.API().BotApi.LetBotLeaveChannel(context.Background(), Info.Id).PostBotActionLeaveRequest(traq.PostBotActionLeaveRequest{ChannelId: ChannelID}).Execute()
+	_, err := bot.API().BotAPI.LetBotLeaveChannel(context.Background(), Info.Id).PostBotActionLeaveRequest(traq.PostBotActionLeaveRequest{ChannelId: ChannelID}).Execute()
 
 	return err
 }
 
 func IsBotJoined(ChannelID string) (bool, error) {
 	bot := GetBot()
-	bots, _, err := bot.API().BotApi.GetChannelBots(context.Background(), ChannelID).Execute()
+	bots, _, err := bot.API().BotAPI.GetChannelBots(context.Background(), ChannelID).Execute()
 	if err != nil {
 		return false, err
 	}
@@ -103,7 +103,7 @@ func IsBotJoined(ChannelID string) (bool, error) {
 
 func GetBots() []traq.Bot {
 	bot := GetBot()
-	Bots, _, err := bot.API().BotApi.GetBots(context.Background()).Execute()
+	Bots, _, err := bot.API().BotAPI.GetBots(context.Background()).Execute()
 	if err != nil {
 		fmt.Println(err)
 	}
