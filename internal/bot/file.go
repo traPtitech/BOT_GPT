@@ -3,19 +3,20 @@ package bot
 import (
 	"context"
 	"encoding/base64"
-	"github.com/traPtitech/go-traq"
 	"io"
 	"log"
 	"os"
 	"regexp"
 	"strings"
+
+	"github.com/traPtitech/go-traq"
 )
 
 func GetFileMetadata(fileID string) *traq.FileInfo {
 	bot := GetBot()
 
 	fileInfo, _, err := bot.API().
-		FileApi.GetFileMeta(context.Background(), fileID).
+		FileAPI.GetFileMeta(context.Background(), fileID).
 		Execute()
 	if err != nil {
 		log.Println(err)
@@ -28,7 +29,7 @@ func GetFileData(fileID string) *os.File {
 	bot := GetBot()
 
 	fileData, _, err := bot.API().
-		FileApi.GetFile(context.Background(), fileID).
+		FileAPI.GetFile(context.Background(), fileID).
 		Execute()
 	if err != nil {
 		log.Println(err)

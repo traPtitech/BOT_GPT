@@ -16,7 +16,7 @@ func (message *TraqMessage) Edit(content string) error {
 	bot := GetBot()
 
 	_, err := bot.API().
-		MessageApi.EditMessage(context.Background(), message.Id).PostMessageRequest(traq.PostMessageRequest{
+		MessageAPI.EditMessage(context.Background(), message.Id).PostMessageRequest(traq.PostMessageRequest{
 		Content: content,
 	}).Execute()
 
@@ -28,7 +28,7 @@ func PostMessage(channelID string, content string) *traq.Message {
 	bot := GetBot()
 
 	message, _, err := bot.API().
-		MessageApi.
+		MessageAPI.
 		PostMessage(context.Background(), channelID).
 		PostMessageRequest(traq.PostMessageRequest{
 			Content: content,
@@ -46,7 +46,7 @@ func PostMessageWithErr(channelID string, content string) (*traq.Message, error)
 	bot := GetBot()
 
 	message, _, err := bot.API().
-		MessageApi.
+		MessageAPI.
 		PostMessage(context.Background(), channelID).
 		PostMessageRequest(traq.PostMessageRequest{
 			Content: content,
@@ -64,7 +64,7 @@ func EditMessage(messageID string, content string) {
 	bot := GetBot()
 
 	_, err := bot.API().
-		MessageApi.EditMessage(context.Background(), messageID).PostMessageRequest(traq.PostMessageRequest{
+		MessageAPI.EditMessage(context.Background(), messageID).PostMessageRequest(traq.PostMessageRequest{
 		Content: content,
 	}).Execute()
 	if err != nil {
@@ -77,7 +77,7 @@ func EditMessageWithErr(messageID string, content string) error {
 	bot := GetBot()
 
 	res, err := bot.API().
-		MessageApi.EditMessage(context.Background(), messageID).PostMessageRequest(traq.PostMessageRequest{
+		MessageAPI.EditMessage(context.Background(), messageID).PostMessageRequest(traq.PostMessageRequest{
 		Content: content,
 	}).Execute()
 	if err != nil {
@@ -97,7 +97,7 @@ func GetMessage(messageID string) *traq.Message {
 	bot := GetBot()
 
 	message, _, err := bot.API().
-		MessageApi.
+		MessageAPI.
 		GetMessage(context.Background(), messageID).
 		Execute()
 	if err != nil {
@@ -122,7 +122,7 @@ func GetMessages(text string) *traq.MessageSearchResult {
 	bot := GetBot()
 
 	messages, _, err := bot.API().
-		MessageApi.
+		MessageAPI.
 		SearchMessages(context.Background()).Word(text).
 		Execute()
 	if err != nil {
@@ -136,8 +136,8 @@ func GetMessagesFromUser(userID string, limit int, offset int, before time.Time)
 	bot := GetBot()
 
 	messages, res, err := bot.API().
-		MessageApi.
-		SearchMessages(context.Background()).From(userID).Limit(int32(limit)).Offset(int32(offset)).Before(before).
+		MessageAPI.
+		SearchMessages(context.Background()).From([]string{userID}).Limit(int32(limit)).Offset(int32(offset)).Before(before).
 		Execute()
 	if err != nil {
 		res2, err2 := io.ReadAll(res.Body)
@@ -155,7 +155,7 @@ func GetMessagesFromPeriod(after time.Time, before time.Time, limit int, offset 
 	bot := GetBot()
 
 	messages, res, err := bot.API().
-		MessageApi.
+		MessageAPI.
 		SearchMessages(context.Background()).Limit(int32(limit)).Offset(int32(offset)).Before(before).After(after).
 		Execute()
 	if err != nil {
@@ -174,8 +174,8 @@ func GetMessagesFromChannelFrom(after time.Time, before time.Time, limit int, of
 	bot := GetBot()
 
 	messages, res, err := bot.API().
-		MessageApi.
-		SearchMessages(context.Background()).Limit(int32(limit)).Offset(int32(offset)).Before(before).After(after).From(userID).In(channelID).
+		MessageAPI.
+		SearchMessages(context.Background()).Limit(int32(limit)).Offset(int32(offset)).Before(before).After(after).From([]string{userID}).In(channelID).
 		Execute()
 	if err != nil {
 		res2, err2 := io.ReadAll(res.Body)
@@ -193,7 +193,7 @@ func DeleteMessage(messageID string) error {
 	bot := GetBot()
 
 	res, err := bot.API().
-		MessageApi.DeleteMessage(context.Background(), messageID).
+		MessageAPI.DeleteMessage(context.Background(), messageID).
 		Execute()
 	if err != nil {
 		res2, err2 := io.ReadAll(res.Body)
