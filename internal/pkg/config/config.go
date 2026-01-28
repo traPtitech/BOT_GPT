@@ -15,6 +15,14 @@ func getEnv(key, defaultValue string) string {
 	return defaultValue
 }
 
+func mustGetEnv(key string) string {
+	if value, exists := os.LookupEnv(key); exists {
+		return value
+	}
+
+	panic(fmt.Sprintf("environment variable %s is required", key))
+}
+
 func AppAddr() string {
 	return getEnv("APP_ADDR", ":8080")
 }
@@ -49,4 +57,14 @@ func MySQL() *mysql.Config {
 	c.ParseTime = true
 
 	return c
+}
+
+type MCPConfig struct {
+	GrafanaMCPBearerToken string
+}
+
+func MCP() *MCPConfig {
+	return &MCPConfig{
+		GrafanaMCPBearerToken: mustGetEnv("GRAFANA_MCP_BEARER_TOKEN"),
+	}
 }
