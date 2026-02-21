@@ -8,7 +8,7 @@ import (
 	"github.com/traPtitech/go-traq"
 )
 
-const quoteRegexStr = `\bhttps://q\\.trap\\.jp/messages/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\b`
+const quoteRegexStr = `\bhttps://q\.trap\.jp/messages/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\b`
 
 var quoteRegex = regexp.MustCompile(quoteRegexStr)
 
