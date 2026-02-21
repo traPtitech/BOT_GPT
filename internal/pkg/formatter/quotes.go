@@ -3,6 +3,7 @@ package formatter
 import (
 	"regexp"
 	"strings"
+	"unicode/utf8"
 
 	"github.com/traPtitech/BOT_GPT/internal/bot"
 	"github.com/traPtitech/go-traq"
@@ -77,8 +78,9 @@ func FormatQuotedMessage(userID string, content string) (string, error) {
 			continue
 		}
 
-		if len(message.Content) > maxQuoteLength {
-			message.Content = message.Content[:maxQuoteLength] + "(以下略)"
+		if utf8.RuneCountInString(message.Content) > maxQuoteLength {
+			runes := []rune(message.Content)
+			message.Content = string(runes[:maxQuoteLength]) + "(以下略)"
 		}
 
 		channelAllowed, err := isChannelAllowingQuotes(message.ChannelId)
