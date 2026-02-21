@@ -101,5 +101,6 @@ func FormatQuotedMessage(userID string, content string) (string, error) {
 		}
 		formattedContent.WriteString("\n\n" + quote)
 	}
+
 	return formattedContent.String(), nil
 }

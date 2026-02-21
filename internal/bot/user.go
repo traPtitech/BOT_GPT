@@ -15,6 +15,7 @@ func getUserInternal(ctx context.Context, userID string) (*traq.UserDetail, erro
 	if err != nil {
 		return nil, err
 	}
+
 	return user, nil
 }
 

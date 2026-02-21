@@ -14,6 +14,7 @@ func getChannelPathInternal(ctx context.Context, channelID string) (string, erro
 	if err != nil {
 		return "", err
 	}
+
 	return path.Path, nil
 }
 
