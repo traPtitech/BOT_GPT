@@ -34,7 +34,7 @@ func isUserAllowingQuotes(userID string, messageUserID string) (bool, error) {
 		return true, nil
 	}
 
-	messageUser, err := bot.GetUser(userID)
+	messageUser, err := bot.GetUser(messageUserID)
 	if err != nil {
 		return false, err
 	}
