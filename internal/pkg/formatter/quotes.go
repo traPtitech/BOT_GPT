@@ -81,19 +81,15 @@ func FormatQuotedMessage(userID string, content string) (string, error) {
 			message.Content = message.Content[:maxQuoteLength] + "(以下略)"
 		}
 
-		allowed, err := isChannelAllowingQuotes(message.ChannelId)
+		channelAllowed, err := isChannelAllowingQuotes(message.ChannelId)
 		if err != nil {
 			return "", err
 		}
-		if !allowed {
-			continue
-		}
-
-		allowed, err = isUserAllowingQuotes(userID, message.UserId)
+		userAllowed, err := isUserAllowingQuotes(userID, message.UserId)
 		if err != nil {
 			return "", err
 		}
-		if !allowed {
+		if !channelAllowed && !userAllowed {
 			continue
 		}
 
