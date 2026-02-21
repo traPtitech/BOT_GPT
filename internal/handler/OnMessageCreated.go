@@ -1,9 +1,11 @@
 package handler
 
 import (
-	"github.com/traPtitech/BOT_GPT/internal/bot"
-	"github.com/traPtitech/traq-ws-bot/payload"
 	"log"
+
+	"github.com/traPtitech/BOT_GPT/internal/bot"
+	"github.com/traPtitech/BOT_GPT/internal/pkg/formatter"
+	"github.com/traPtitech/traq-ws-bot/payload"
 )
 
 func (h *Handler) MessageReceived() func(p *payload.MessageCreated) {
@@ -17,7 +19,12 @@ func (h *Handler) MessageReceived() func(p *payload.MessageCreated) {
 		}
 
 		plainTextWithoutMention := bot.RemoveFirstBotID(p.Message.PlainText)
+		formattedMessage, err := formatter.FormatQuotedMessage(p.Message.User.ID, plainTextWithoutMention)
+		if err != nil {
+			log.Printf("Error formatting quoted message: %v\n", err)
+			formattedMessage = plainTextWithoutMention
+		}
 
-		messageReceived(p.Message.Text, plainTextWithoutMention, p.Message.ChannelID)
+		messageReceived(p.Message.Text, formattedMessage, p.Message.ChannelID)
 	}
 }
