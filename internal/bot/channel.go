@@ -18,7 +18,7 @@ func getChannelPathInternal(ctx context.Context, channelID string) (string, erro
 	return path.Path, nil
 }
 
-var channelPathCache = sc.NewMust(getChannelPathInternal, time.Hour, time.Hour, nil)
+var channelPathCache = sc.NewMust(getChannelPathInternal, time.Hour, time.Hour)
 
 func GetChannelPath(channelID string) (string, error) {
 	return channelPathCache.Get(context.Background(), channelID)

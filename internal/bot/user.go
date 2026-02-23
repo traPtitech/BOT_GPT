@@ -19,7 +19,7 @@ func getUserInternal(ctx context.Context, userID string) (*traq.UserDetail, erro
 	return user, nil
 }
 
-var userCache = sc.NewMust(getUserInternal, time.Hour, time.Hour, nil)
+var userCache = sc.NewMust(getUserInternal, time.Hour, time.Hour)
 
 func GetUser(userID string) (*traq.UserDetail, error) {
 	return userCache.Get(context.Background(), userID)
