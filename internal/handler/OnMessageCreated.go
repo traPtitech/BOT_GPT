@@ -18,11 +18,12 @@ func (h *Handler) MessageReceived() func(p *payload.MessageCreated) {
 			return
 		}
 
-		plainTextWithoutMention := bot.RemoveFirstBotID(p.Message.PlainText)
-		formattedMessage, err := formatter.FormatQuotedMessage(p.Message.User.ID, plainTextWithoutMention)
+		textEmbedFormatted := formatter.FormatEmbeds(p.Message.Text)
+		textWithoutMention := bot.RemoveFirstBotID(textEmbedFormatted)
+		formattedMessage, err := formatter.FormatQuotedMessage(p.Message.User.ID, textWithoutMention)
 		if err != nil {
 			log.Printf("Error formatting quoted message: %v\n", err)
-			formattedMessage = plainTextWithoutMention
+			formattedMessage = textWithoutMention
 		}
 
 		messageReceived(p.Message.Text, formattedMessage, p.Message.ChannelID)
