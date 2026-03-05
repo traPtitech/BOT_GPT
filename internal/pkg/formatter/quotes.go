@@ -13,7 +13,7 @@ const quoteRegexStr = `\bhttps://q\.trap\.jp/messages/([0-9a-f]{8}-[0-9a-f]{4}-[
 
 var quoteRegex = regexp.MustCompile(quoteRegexStr)
 
-var allowingPrefixes = []string{"/event", "/general", "/random", "/services", "/team/SysAd"}
+var allowingPrefixes = []string{"event", "general", "random", "services", "team/SysAd"}
 
 func isChannelAllowingQuotes(channelID string) (bool, error) {
 	channelPath, err := bot.GetChannelPath(channelID)
