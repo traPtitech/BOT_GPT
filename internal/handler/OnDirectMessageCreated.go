@@ -1,9 +1,11 @@
 package handler
 
 import (
-	"github.com/traPtitech/BOT_GPT/internal/bot"
-	"github.com/traPtitech/traq-ws-bot/payload"
 	"log"
+
+	"github.com/traPtitech/BOT_GPT/internal/bot"
+	"github.com/traPtitech/BOT_GPT/internal/pkg/formatter"
+	"github.com/traPtitech/traq-ws-bot/payload"
 )
 
 func (h *Handler) DirectMessageReceived() func(p *payload.DirectMessageCreated) {
@@ -16,12 +18,18 @@ func (h *Handler) DirectMessageReceived() func(p *payload.DirectMessageCreated) 
 			return
 		}
 
-		plainTextWithoutMention := bot.RemoveFirstBotID(p.Message.PlainText)
+		textWithEmbed := formatter.FormatEmbeds(p.Message.Text)
+		textWithoutMention := bot.RemoveFirstBotID(textWithEmbed)
+		formattedMessage, err := formatter.FormatQuotedMessage(p.Message.User.ID, textWithoutMention)
+		if err != nil {
+			log.Printf("Error formatting quoted message: %v\n", err)
+			formattedMessage = textWithoutMention
+		}
 
 		if p.Message.User.Name != "pikachu" {
 			_ = bot.PostMessage(p.Message.ChannelID, "DMではあんまり沢山使わないでね。定期的な`/reset`を忘れない事。")
 		}
 
-		messageReceived(p.Message.Text, plainTextWithoutMention, p.Message.ChannelID)
+		messageReceived(p.Message.Text, formattedMessage, p.Message.ChannelID)
 	}
 }
