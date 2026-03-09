@@ -9,6 +9,7 @@ import (
 	"github.com/openai/openai-go/v2"
 	"github.com/openai/openai-go/v2/packages/param"
 	"github.com/openai/openai-go/v2/responses"
+	"github.com/traPtitech/BOT_GPT/internal/pkg/config"
 )
 
 type ToolKind string
@@ -26,6 +27,7 @@ type MCPOptions struct {
 	ServerLabel    string
 	ServerURL      param.Opt[string]
 	ApprovalPolicy string
+	Authorization  param.Opt[string]
 }
 
 func (o MCPOptions) validate() error {
@@ -37,6 +39,12 @@ func (o MCPOptions) validate() error {
 	}
 	if strings.TrimSpace(o.ApprovalPolicy) == "" {
 		return errors.New("mcp approval policy is required")
+	}
+	if o.ApprovalPolicy != "always" && o.ApprovalPolicy != "never" && o.ApprovalPolicy != "prompt" {
+		return fmt.Errorf("invalid mcp approval policy: %s", o.ApprovalPolicy)
+	}
+	if o.Authorization.Valid() && strings.TrimSpace(o.Authorization.Value) == "" {
+		return errors.New("mcp authorization, if provided, cannot be empty")
 	}
 
 	return nil
@@ -64,8 +72,9 @@ func (s Spec) ToResponseTool() (responses.ToolUnionParam, error) {
 	case ToolKindMCP:
 		return responses.ToolUnionParam{
 			OfMcp: &responses.ToolMcpParam{
-				ServerLabel: s.MCP.ServerLabel,
-				ServerURL:   s.MCP.ServerURL,
+				ServerLabel:   s.MCP.ServerLabel,
+				ServerURL:     s.MCP.ServerURL,
+				Authorization: s.MCP.Authorization,
 				RequireApproval: responses.ToolMcpRequireApprovalUnionParam{
 					OfMcpToolApprovalSetting: openai.Opt(s.MCP.ApprovalPolicy),
 				},
@@ -124,6 +133,24 @@ func DefaultSpecs() []Spec {
 				ServerLabel:    "deepwiki",
 				ServerURL:      param.NewOpt("https://mcp.deepwiki.com/mcp"),
 				ApprovalPolicy: "never",
+			},
+		},
+		{
+			Kind: ToolKindMCP,
+			MCP: &MCPOptions{
+				ServerLabel:    "Grafana (ConoHa)",
+				ServerURL:      param.NewOpt("https://grafana-mcp.trap.jp/sse"),
+				ApprovalPolicy: "never",
+				Authorization:  param.NewOpt("Bearer " + config.MCP().GrafanaMCPBearerToken),
+			},
+		},
+		{
+			Kind: ToolKindMCP,
+			MCP: &MCPOptions{
+				ServerLabel:    "Grafana (Sakura)",
+				ServerURL:      param.NewOpt("https://s-grafana-mcp.trap.jp/sse"),
+				ApprovalPolicy: "never",
+				Authorization:  param.NewOpt("Bearer " + config.MCP().GrafanaMCPBearerToken),
 			},
 		},
 	}
