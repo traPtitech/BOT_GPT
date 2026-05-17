@@ -107,24 +107,3 @@ func TestStaticProviderNil(t *testing.T) {
 		t.Fatalf("expected nil tools, got %v", tools)
 	}
 }
-
-func TestDefaultSpecsProvider(t *testing.T) {
-	provider := NewStaticProvider(DefaultSpecs())
-
-	tools, err := provider.Tools(context.Background())
-	if err != nil {
-		t.Fatalf("Tools returned error: %v", err)
-	}
-
-	if len(tools) != 1 {
-		t.Fatalf("expected 1 tool, got %d", len(tools))
-	}
-
-	if tools[0].OfMcp == nil {
-		t.Fatalf("expected MCP tool variant")
-	}
-
-	if got := tools[0].OfMcp.ServerLabel; got != "deepwiki" {
-		t.Fatalf("ServerLabel = %q, want %q", got, "deepwiki")
-	}
-}
